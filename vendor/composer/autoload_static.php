@@ -21,6 +21,12 @@ class ComposerStaticInit3639343bad2be116c51564584ce99332
     );
 
     public static $classMap = array (
+        'Aj\\Table\\Booking_Db' => __DIR__ . '/../..' . '/includes/class-booking-db.php',
+        'Booking' => __DIR__ . '/../..' . '/includes/class-booking.php',
+        'Booking_Activator' => __DIR__ . '/../..' . '/includes/class-booking-activator.php',
+        'Booking_Deactivator' => __DIR__ . '/../..' . '/includes/class-booking-deactivator.php',
+        'Booking_Loader' => __DIR__ . '/../..' . '/includes/class-booking-loader.php',
+        'Booking_i18n' => __DIR__ . '/../..' . '/includes/class-booking-i18n.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
     );
 

@@ -6,5 +6,11 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Aj\\Table\\Booking_Db' => $baseDir . '/includes/class-booking-db.php',
+    'Booking' => $baseDir . '/includes/class-booking.php',
+    'Booking_Activator' => $baseDir . '/includes/class-booking-activator.php',
+    'Booking_Deactivator' => $baseDir . '/includes/class-booking-deactivator.php',
+    'Booking_Loader' => $baseDir . '/includes/class-booking-loader.php',
+    'Booking_i18n' => $baseDir . '/includes/class-booking-i18n.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
 );
