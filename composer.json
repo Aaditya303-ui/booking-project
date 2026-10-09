@@ -6,7 +6,10 @@
     "autoload": {
         "psr-4": {
             "Aj\\Booking\\": "src/"
-        }
+        },
+        "classmap": [
+            "includes/"
+        ]
     },
     "require": {}
 }

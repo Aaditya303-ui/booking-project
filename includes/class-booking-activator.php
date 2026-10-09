@@ -1,5 +1,6 @@
 <?php
 
+require_once dirname(__DIR__) . '/vendor/autoload.php';
 /**
  * Fired during plugin activation
  *
@@ -30,7 +31,7 @@ class Booking_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
-
+		\Aj\Table\Booking_Db::create_table();
 	}
 
 }
