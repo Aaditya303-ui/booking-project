@@ -1,11 +1,34 @@
 <?php
+
 namespace Aj\Table;
 
-class Booking_Db {
+class Booking_Db
+{
 
-    public static function create_table() {
+    public static function create_table()
+    {
 
-        error_log('Booking_Db class method is running');
+        global $wpdb;
+
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $table_name = $wpdb->prefix . 'bookings';
+
+        $sql = "CREATE TABLE $table_name (
+                id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				resource_id BIGINT(20) UNSIGNED,
+				requester_name VARCHAR(255),
+				requester_email VARCHAR(255),
+				start_time DATETIME,
+				end_time DATETIME,
+				status VARCHAR(20),
+				created_at DATETIME,
+				PRIMARY KEY  (id)
+                ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+
 
         // Your existing database creation code
     }

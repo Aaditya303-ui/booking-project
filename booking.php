@@ -51,6 +51,7 @@ function activate_booking() {
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-booking-deactivator.php
  */
+
 function deactivate_booking() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-booking-deactivator.php';
 	Booking_Deactivator::deactivate();
