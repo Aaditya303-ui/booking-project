@@ -9,11 +9,16 @@ class ComposerStaticInit3639343bad2be116c51564584ce99332
     public static $prefixLengthsPsr4 = array (
         'A' =>
         array (
+            'Aj\\Post\\' => 8,
             'Aj\\Booking\\' => 11,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'Aj\\Post\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/src/Post',
+        ),
         'Aj\\Booking\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src',
@@ -21,6 +26,7 @@ class ComposerStaticInit3639343bad2be116c51564584ce99332
     );
 
     public static $classMap = array (
+        'Aj\\Post\\Booking_Post' => __DIR__ . '/../..' . '/includes/class-booking-cpt.php',
         'Aj\\Table\\Booking_Db' => __DIR__ . '/../..' . '/includes/class-booking-db.php',
         'Booking' => __DIR__ . '/../..' . '/includes/class-booking.php',
         'Booking_Activator' => __DIR__ . '/../..' . '/includes/class-booking-activator.php',

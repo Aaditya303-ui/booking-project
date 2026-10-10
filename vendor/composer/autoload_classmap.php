@@ -6,6 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Aj\\Post\\Booking_Post' => $baseDir . '/includes/class-booking-cpt.php',
     'Aj\\Table\\Booking_Db' => $baseDir . '/includes/class-booking-db.php',
     'Booking' => $baseDir . '/includes/class-booking.php',
     'Booking_Activator' => $baseDir . '/includes/class-booking-activator.php',

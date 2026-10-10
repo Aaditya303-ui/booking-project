@@ -5,7 +5,8 @@
     "license": "GPL-2.0-or-later",
     "autoload": {
         "psr-4": {
-            "Aj\\Booking\\": "src/"
+            "Aj\\Booking\\": "src/",
+            "Aj\\Post\\": "src/Post/"
         },
         "classmap": [
             "includes/"
