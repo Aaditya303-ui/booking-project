@@ -21,15 +21,12 @@ class Booking_Db
 				requester_email VARCHAR(255),
 				start_time DATETIME,
 				end_time DATETIME,
-				status VARCHAR(20),
+				status ENUM('pending','confirmed','expired','cancelled'),
 				created_at DATETIME,
 				PRIMARY KEY  (id)
                 ) $charset_collate;";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
-
-
-        // Your existing database creation code
     }
 }
