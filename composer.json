@@ -6,7 +6,8 @@
     "autoload": {
         "psr-4": {
             "Aj\\Booking\\": "src/",
-            "Aj\\Post\\": "src/Post/"
+            "Aj\\Post\\": "src/Post/",
+            "Aj\\Admin\\": "admin/"
         },
         "classmap": [
             "includes/"

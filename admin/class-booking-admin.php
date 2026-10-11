@@ -1,5 +1,8 @@
 <?php
 
+// require_once plugin_dir_path(__FILE__) . 'partials/shortcodes.php';
+// namespace Aj\Admin;
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -20,7 +23,8 @@
  * @subpackage Booking/admin
  * @author     aj <test@gmail.com>
  */
-class Booking_Admin {
+class Booking_Admin
+{
 
 	/**
 	 * The ID of this plugin.
@@ -47,11 +51,11 @@ class Booking_Admin {
 	 * @param      string    $plugin_name       The name of this plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
-	public function __construct( $plugin_name, $version ) {
+	public function __construct($plugin_name, $version)
+	{
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
 	}
 
 	/**
@@ -59,7 +63,8 @@ class Booking_Admin {
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_styles() {
+	public function enqueue_styles()
+	{
 
 		/**
 		 * This function is provided for demonstration purposes only.
@@ -73,8 +78,7 @@ class Booking_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/booking-admin.css', array(), $this->version, 'all' );
-
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/booking-admin.css', array(), $this->version, 'all');
 	}
 
 	/**
@@ -82,7 +86,8 @@ class Booking_Admin {
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_scripts() {
+	public function enqueue_scripts()
+	{
 
 		/**
 		 * This function is provided for demonstration purposes only.
@@ -96,8 +101,24 @@ class Booking_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/booking-admin.js', array( 'jquery' ), $this->version, false );
-
+		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/booking-admin.js', array('jquery'), $this->version, false);
 	}
 
+	public static function add_booking_menu()
+	{
+		add_menu_page(
+			'Resource Admin Side',
+			'Resource page',
+			'manage_options',
+			'resource-admin-page',
+			array(__CLASS__, 'resource_admin_page_callback')
+		);
+	}
+
+	public static function resource_admin_page_callback()
+	{
+		require_once plugin_dir_path(__FILE__) . '/partials/add_resource.php';
+	}
 }
+
+add_action('admin_menu', [Booking_Admin::class, 'add_booking_menu']);
