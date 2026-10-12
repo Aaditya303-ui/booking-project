@@ -1,5 +1,7 @@
 <?php
 
+require_once plugin_dir_path(__FILE__). './class-booking-cpt-rest.php';
+
 /**
  * The file that defines the core plugin class
  *

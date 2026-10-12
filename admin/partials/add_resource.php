@@ -1,6 +1,6 @@
 <h1>Add Resource</h1>
 
-<form>
+<form method="post" enctype="multipart/form-data">
     Name:
     <input type="text" name="resource_name" id="resource_name">
 

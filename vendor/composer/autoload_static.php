@@ -31,6 +31,7 @@ class ComposerStaticInit3639343bad2be116c51564584ce99332
     );
 
     public static $classMap = array (
+        'Aj\\Booking\\Booking_CPT_Rest' => __DIR__ . '/../..' . '/includes/class-booking-cpt-rest.php',
         'Aj\\Post\\Booking_Post' => __DIR__ . '/../..' . '/includes/class-booking-cpt.php',
         'Aj\\Table\\Booking_Db' => __DIR__ . '/../..' . '/includes/class-booking-db.php',
         'Booking' => __DIR__ . '/../..' . '/includes/class-booking.php',

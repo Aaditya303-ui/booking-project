@@ -84,5 +84,7 @@ function run_booking() {
 run_booking();
 
 //add_action('init',array('\AJ\Post\Booking_Post','create_post'));
-add_action('init',array('Aj\Post\Booking_Post','create_post'));
+// add_action('init',array('Aj\Post\Booking_Post','create_post'));
+
+new \Aj\Booking\Booking_CPT_Rest();
 
