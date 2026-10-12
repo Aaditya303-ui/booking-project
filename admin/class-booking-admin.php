@@ -1,6 +1,5 @@
 <?php
 
-// require_once plugin_dir_path(__FILE__) . 'partials/shortcodes.php';
 // namespace Aj\Admin;
 
 /**
@@ -113,9 +112,23 @@ class Booking_Admin
 			'resource-admin-page',
 			array(__CLASS__, 'resource_admin_page_callback')
 		);
+
+		add_submenu_page(
+			'resource-admin-page',
+			'add resource',
+			'add resource',
+			'manage_options',
+			'add-resource',
+			array(__CLASS__,'add_resource_call')
+		);
 	}
 
 	public static function resource_admin_page_callback()
+	{
+		require_once plugin_dir_path(__FILE__) . '/partials/heading.php';
+	}
+
+	public static function add_resource_call()
 	{
 		require_once plugin_dir_path(__FILE__) . '/partials/add_resource.php';
 	}
