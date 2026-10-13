@@ -27,7 +27,7 @@ require_once __DIR__ . '/vendor/autoload.php';
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
 	die;
 }
 
@@ -36,14 +36,15 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'BOOKING_VERSION', '1.0.0' );
+define('BOOKING_VERSION', '1.0.0');
 
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-booking-activator.php
  */
-function activate_booking() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-booking-activator.php';
+function activate_booking()
+{
+	require_once plugin_dir_path(__FILE__) . 'includes/class-booking-activator.php';
 	Booking_Activator::activate();
 }
 
@@ -52,19 +53,20 @@ function activate_booking() {
  * This action is documented in includes/class-booking-deactivator.php
  */
 
-function deactivate_booking() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-booking-deactivator.php';
+function deactivate_booking()
+{
+	require_once plugin_dir_path(__FILE__) . 'includes/class-booking-deactivator.php';
 	Booking_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_booking' );
-register_deactivation_hook( __FILE__, 'deactivate_booking' );
+register_activation_hook(__FILE__, 'activate_booking');
+register_deactivation_hook(__FILE__, 'deactivate_booking');
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-booking.php';
+require plugin_dir_path(__FILE__) . 'includes/class-booking.php';
 
 /**
  * Begins execution of the plugin.
@@ -75,17 +77,12 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-booking.php';
  *
  * @since    1.0.0
  */
-function run_booking() {
+function run_booking()
+{
 
 	$plugin = new Booking();
 	$plugin->run();
-
 }
 run_booking();
 
-//add_action('init',array('\AJ\Post\Booking_Post','create_post'));
-// add_action('init',array('Aj\Post\Booking_Post','create_post'));
-
-// add_action('init', array('Aj\Post\Booking_Post', 'create_post'));
 new \Aj\Booking\Booking_CPT_Rest();
-

@@ -1,32 +1,72 @@
-(function( $ ) {
-	'use strict';
+(function ($) {
+  "use strict";
 
-	/**
-	 * All of the code for your admin-facing JavaScript source
-	 * should reside in this file.
-	 *
-	 * Note: It has been assumed you will write jQuery code here, so the
-	 * $ function reference has been prepared for usage within the scope
-	 * of this function.
-	 *
-	 * This enables you to define handlers, for when the DOM is ready:
-	 *
-	 * $(function() {
-	 *
-	 * });
-	 *
-	 * When the window is loaded:
-	 *
-	 * $( window ).load(function() {
-	 *
-	 * });
-	 *
-	 * ...and/or other possibilities.
-	 *
-	 * Ideally, it is not considered best practise to attach more than a
-	 * single DOM-ready or window-load handler for a particular page.
-	 * Although scripts in the WordPress core, Plugins and Themes may be
-	 * practising this, we should strive to set a better example in our own work.
-	 */
+  function loadResourceList() {
+    $.get(
+      "http://localhost/wordpress/wp-json/myapi/v1/resources",
+      function (data) {
+        let i = 0;
+        let rowsHtml = "";
 
-})( jQuery );
+        while (i < data.length) {
+          let title = typeof data[i].title === 'object' ? data[i].title.rendered : data[i].title;
+          let capacity = data[i]._capacity || data[i].capacity || 'N/A';
+
+          rowsHtml += `<tr>
+                        <td>${data[i].id}</td>
+                        <td>${title}</td>
+                        <td>${capacity}</td>
+                        <td><button class="view-resource-link" data-id="${data[i].id}">view</button></td>
+                      </tr>`;
+          i++;
+        }
+        $("#mycontent").html(rowsHtml);
+      }
+    );
+  }
+
+  loadResourceList();
+  
+  $(document).on("click", ".view-resource-link", function (e) {
+    e.preventDefault();
+    const resourceId = $(this).data("id");
+
+    $.get(
+      `http://localhost/wordpress/wp-json/myapi/v1/resource/${resourceId}`,
+      function (resource) {
+        console.log(resource[0]._capacity);
+        let title     = resource[0].title;
+        let content   = resource[0].content;
+        let capacity  = resource[0]._capacity;
+        let thumbnail = resource[0].thumbnail;
+
+        $("#modal-title").text(title);
+        $("#modal-content").html(content);
+        $("#modal-capacity").text(capacity);
+
+        if (thumbnail) {
+          $("#modal-image-container").html(
+            `<img src="${thumbnail}" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;" />`
+          );
+        } else {
+          $("#modal-image-container").html("");
+        }
+
+        $("#resource-modal").fadeIn(200);
+      }
+    );
+  });
+
+  
+  $(document).on("click", ".booking-modal-close", function () {
+    $("#resource-modal").fadeOut(200);
+  });
+
+  
+  $(window).on("click", function (e) {
+    if ($(e.target).is("#resource-modal")) {
+      $("#resource-modal").fadeOut(200);
+    }
+  });
+
+})(jQuery);
