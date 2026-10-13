@@ -1,4 +1,87 @@
-/**
- * All of the CSS for your admin-specific functionality should be
- * included in this file.
- */
+ .resource-wrap {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    color: #2c3338;
+    margin: 20px 20px 20px 0;
+}
+
+.resource-wrap h1 {
+    font-size: 23px;
+    font-weight: 400;
+    margin-bottom: 5px;
+}
+
+.resource-wrap h2 {
+    font-size: 14px;
+    color: #646970;
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.resource-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.resource-table th, 
+.resource-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #c3c4c7;
+}
+
+.resource-table th {
+    background: #f6f7f7;
+    font-weight: 600;
+    color: #1d2327;
+    border-bottom: 1px solid #8c8f94;
+}
+
+.resource-table tbody tr:hover {
+    background: #f0f0f1;
+}
+
+.resource-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Modal Overlay Background */
+.booking-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 100000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.booking-modal-content {
+    background: #fff;
+    padding: 30px;
+    width: 500px;
+    max-width: 90%;
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.booking-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+}
+
+.booking-modal-close:hover {
+    color: #000;
+}
