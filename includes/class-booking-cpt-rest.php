@@ -1,5 +1,8 @@
 <?php
+
 namespace Aj\Booking;
+
+use WP_REST_Request, WP_REST_Response, WP_Error;
 
 class Booking_CPT_Rest
 {
@@ -13,10 +16,50 @@ class Booking_CPT_Rest
 
         register_rest_route(
             'myapi/v1',
-            '/resource',
+            '/resources',
             array(
                 'methods'             => 'GET',
                 'callback'            => array($this, 'get_cpt_data'),
+                'permission_callback' => '__return_true'
+            )
+        );
+
+        register_rest_route(
+            'myapi/v1',
+            '/resource/(?P<id>\d+)',
+            array(
+                'methods' => 'GET',
+                'callback' => array($this, 'get_cpt_by_id'),
+                'permission_callback' => '__return_true'
+            )
+        );
+
+        register_rest_route(
+            'myapi/v1',
+            '/resource',
+            array(
+                'methods'  => 'POST',
+                'callback' => array($this, 'add_cpt_data'),
+                'permission_callback' => '__return_true'
+            )
+        );
+
+        register_rest_route(
+            'myapi/v1',
+            '/resource/(?P<id>\d+)',
+            array(
+                'methods'  => array('PATCH', 'PUT', 'POST'),
+                'callback' => array($this, 'update_cpt_data'),
+                'permission_callback' => '__return_true'
+            )
+        );
+
+        register_rest_route(
+            'myapi/v1',
+            '/resource/(?P<id>\d+)',
+            array(
+                'methods'  => array('Delete'),
+                'callback' => array($this, 'delete_cpt_data'),
                 'permission_callback' => '__return_true'
             )
         );
@@ -34,17 +77,282 @@ class Booking_CPT_Rest
 
         $data = array();
 
-        foreach($posts as $post) {
+        foreach ($posts as $post) {
             $thumbnail_url = get_the_post_thumbnail_url($post->ID, 'full');
+            $capacity      = get_post_meta($post->ID, '_capacity', true);
             $data[] = array(
                 'id'        => $post->ID,
                 'title'     => $post->post_title,
                 'slug'      => $post->post_name,
                 'thumbnail' => $thumbnail_url,
-                'content'   => add_filter('the_content',$post->post_content)
+                '_capacity'  => $capacity,
+                'content'   => $post->post_content
             );
         }
-        return new \WP_REST_Response($data, 200);   
+        return new \WP_REST_Response($data, 200);
+    }
+
+    public function get_cpt_by_id(WP_REST_Request $request)
+    {
+        $id = $request->get_param('id');
+
+        $post = get_post($id);
+
+        if ($post) {
+            $data = array();
+
+            $thumbnail_url = get_the_post_thumbnail_url($id, 'full');
+            $capacity      = get_post_meta($post->ID, '_capacity', true);
+
+            $data[] = array(
+                'id'        => $post->ID,
+                'title'     => $post->post_title,
+                'slug'      => $post->post_name,
+                'thumbnail' => $thumbnail_url,
+                '_capacity'  => $capacity,
+                'content'   => $post->post_content
+            );
+            return new \WP_REST_Response($data, 200);
+        } else {
+            return new WP_REST_Response(
+                array(
+                    'success' => false,
+                    'message' => 'Invalid resource ID.',
+                ),
+                400
+            );
+        }
+    }
+
+    public function add_cpt_data(WP_REST_Request $request)
+    {
+
+        $title    = sanitize_text_field($request->get_param('title'));
+        $content  = sanitize_textarea_field($request->get_param('content'));
+        $capacity = absint($request->get_param('capacity'));
+
+
+        $postarr = array(
+            'post_title'   => $title,
+            'post_type'    => 'resource',
+            'post_status'  => 'publish',
+            'post_content' => $content,
+        );
+
+        $post_id = wp_insert_post($postarr, true);
+
+
+        if (is_wp_error($post_id)) {
+
+            return new WP_REST_Response(
+                array(
+                    'success' => false,
+                    'message' => $post_id->get_error_message(),
+                ),
+                500
+            );
+        }
+
+        update_post_meta(
+            $post_id,
+            '_capacity',
+            $capacity
+        );
+
+        if (! empty($_FILES['image'])) {
+
+            require_once ABSPATH . 'wp-admin/includes/image.php';
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            require_once ABSPATH . 'wp-admin/includes/media.php';
+
+            $attachment_id = media_handle_upload(
+                'image',
+                $post_id
+            );
+
+
+            if (is_wp_error($attachment_id)) {
+
+                return new WP_REST_Response(
+                    array(
+                        'success'     => false,
+                        'resource_id' => $post_id,
+                        'message'     => $attachment_id->get_error_message(),
+                    ),
+                    500
+                );
+            }
+
+
+            set_post_thumbnail(
+                $post_id,
+                $attachment_id
+            );
+        }
+
+        return new WP_REST_Response(
+            array(
+                'success'     => true,
+                'resource_id' => $post_id,
+                'image_id'    => $attachment_id ?? null,
+                'message'     => 'Resource created successfully.',
+            ),
+            201
+        );
+    }
+
+    public function update_cpt_data(WP_REST_Request $request)
+    {
+
+        $id = absint($request->get_param('id'));
+
+        if (! $id) {
+            return new WP_REST_Response(
+                array(
+                    'success' => false,
+                    'message' => 'Invalid resource ID.',
+                ),
+                400
+            );
+        }
+
+        $post = get_post($id);
+
+        if (! $post || $post->post_type !== 'resource') {
+            return new WP_REST_Response(
+                array(
+                    'success' => false,
+                    'message' => 'Resource not found.',
+                ),
+                404
+            );
+        }
+
+        $data = array(
+            'ID'          => $id,
+            'post_type'  => 'resource',
+            'post_status' => 'publish',
+        );
+
+        $has_updates = false;
+
+        $title = $request->get_param('title');
+
+        if (! empty($title)) {
+
+            $data['post_title'] = sanitize_text_field($title);
+
+            $has_updates = true;
+        }
+
+
+        $content = $request->get_param('content');
+
+        if (! empty($content)) {
+
+            $data['post_content'] = sanitize_textarea_field($content);
+
+            $has_updates = true;
+        }
+
+
+        if ($has_updates) {
+
+            $updated = wp_update_post($data, true);
+
+            if (is_wp_error($updated)) {
+
+                return new WP_REST_Response(
+                    array(
+                        'success' => false,
+                        'message' => $updated->get_error_message(),
+                    ),
+                    500
+                );
+            }
+        }
+
+
+        $capacity = $request->get_param('capacity');
+
+        if ($capacity !== null) {
+
+            update_post_meta(
+                $id,
+                '_capacity',
+                absint($capacity)
+            );
+        }
+
+        if (! empty($_FILES['image'])) {
+
+            require_once ABSPATH . 'wp-admin/includes/image.php';
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            require_once ABSPATH . 'wp-admin/includes/media.php';
+
+            $current_attachment_id = get_post_thumbnail_id($id);
+
+            if ($current_attachment_id) {
+                wp_delete_attachment(
+                    $current_attachment_id,
+                    true
+                );
+            }
+
+            $new_attachment_id = media_handle_upload(
+                'image',
+                $id
+            );
+
+            if (is_wp_error($new_attachment_id)) {
+
+                return new WP_REST_Response(
+                    array(
+                        'success' => false,
+                        'message' => $new_attachment_id->get_error_message(),
+                    ),
+                    500
+                );
+            }
+
+            set_post_thumbnail(
+                $id,
+                $new_attachment_id
+            );
+        }
+
+        return new WP_REST_Response(
+            array(
+                'success'     => true,
+                'resource_id' => $id,
+                'message'     => 'Resource updated successfully.',
+            ),
+            200
+        );
+    }
+
+    public function delete_cpt_data(WP_REST_Request $request)
+    {
+
+        $id = absint($request->get_param('id'));
+
+        $thumbnail_id = get_post_thumbnail_id($id);
+
+        if ($thumbnail_id) {
+            wp_delete_attachment($thumbnail_id, true);
+        }
+
+        $deleted = wp_delete_post($id, true);
+
+        if (! $deleted) {
+            return new WP_Error('delete_failed', 'Failed to delete resource.', ['status' => 500]);
+        }
+
+        return new WP_REST_Response([
+            'success'     => true,
+            'resource_id' => $id,
+            'message'     => 'Resource and its thumbnail deleted successfully.',
+        ], 200);
     }
 }
 

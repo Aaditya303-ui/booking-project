@@ -20,7 +20,7 @@ class Booking_Post
             ),
             'rewrite'      => array( 'slug' => 'resource'),
             'public'       => true,
-            'rest_base'    => true,
+            'rest_base'    => 'resources',
             'has_archive'  => true,
             'show_in_rest' => true,
             'show_in_menu' => true,
