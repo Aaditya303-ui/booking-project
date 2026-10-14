@@ -28,8 +28,8 @@ class Booking_CPT_Rest
             'myapi/v1',
             '/resource/(?P<id>\d+)',
             array(
-                'methods' => 'GET',
-                'callback' => array($this, 'get_cpt_by_id'),
+                'methods'             => 'GET',
+                'callback'            => array($this, 'get_cpt_by_id'),
                 'permission_callback' => '__return_true'
             )
         );
@@ -38,9 +38,31 @@ class Booking_CPT_Rest
             'myapi/v1',
             '/resource',
             array(
-                'methods'  => 'POST',
-                'callback' => array($this, 'add_cpt_data'),
-                'permission_callback' => '__return_true'
+                'methods'             => 'POST',
+                'callback'            => array($this, 'add_cpt_data'),
+
+                'permission_callback' => array($this, 'permission_call'),
+
+                'args' => array(
+
+                    'title' => array(
+                        'required'          => true,
+                        'sanitize_callback' => 'sanitize_text_field',
+                        'validate_callback' => array($this, 'validate_title'),
+                    ),
+
+                    'content' => array(
+                        'required'                => true,
+                        'sanitize_callback'       => 'sanitize_textarea_field',
+                        'validate_callback'       => array($this, 'validate_content'),
+                    ),
+
+                    'capacity' => array(
+                        'required'          => true,
+                        'sanitize_callback' => 'absint',
+                        'validate_callback' => array($this, 'validate_capacity'),
+                    ),
+                )
             )
         );
 
@@ -48,9 +70,9 @@ class Booking_CPT_Rest
             'myapi/v1',
             '/resource/(?P<id>\d+)',
             array(
-                'methods'  => array('PATCH', 'PUT', 'POST'),
-                'callback' => array($this, 'update_cpt_data'),
-                'permission_callback' => '__return_true'
+                'methods'             => array('PATCH', 'PUT', 'POST'),
+                'callback'            => array($this, 'update_cpt_data'),
+                'permission_callback' => array($this, 'permission_call'),
             )
         );
 
@@ -58,9 +80,9 @@ class Booking_CPT_Rest
             'myapi/v1',
             '/resource/(?P<id>\d+)',
             array(
-                'methods'  => array('Delete'),
-                'callback' => array($this, 'delete_cpt_data'),
-                'permission_callback' => '__return_true'
+                'methods'             => array('Delete'),
+                'callback'            => array($this, 'delete_cpt_data'),
+                'permission_callback' => array($this, 'permission_call'),
             )
         );
     }
@@ -68,8 +90,8 @@ class Booking_CPT_Rest
     public function get_cpt_data()
     {
         $args = array(
-            'post_type'   => 'resource',
-            'post_status' => 'publish',
+            'post_type'      => 'resource',
+            'post_status'    => 'publish',
             'posts_per_page' => -1,
         );
 
@@ -81,12 +103,12 @@ class Booking_CPT_Rest
             $thumbnail_url = get_the_post_thumbnail_url($post->ID, 'full');
             $capacity      = get_post_meta($post->ID, '_capacity', true);
             $data[] = array(
-                'id'        => $post->ID,
-                'title'     => $post->post_title,
-                'slug'      => $post->post_name,
-                'thumbnail' => $thumbnail_url,
+                'id'         => $post->ID,
+                'title'      => $post->post_title,
+                'slug'       => $post->post_name,
+                'thumbnail'  => $thumbnail_url,
                 '_capacity'  => $capacity,
-                'content'   => $post->post_content
+                'content'    => $post->post_content
             );
         }
         return new \WP_REST_Response($data, 200);
@@ -94,7 +116,7 @@ class Booking_CPT_Rest
 
     public function get_cpt_by_id(WP_REST_Request $request)
     {
-        $id = $request->get_param('id');
+        $id   = $request->get_param('id');
 
         $post = get_post($id);
 
@@ -105,12 +127,12 @@ class Booking_CPT_Rest
             $capacity      = get_post_meta($post->ID, '_capacity', true);
 
             $data[] = array(
-                'id'        => $post->ID,
-                'title'     => $post->post_title,
-                'slug'      => $post->post_name,
-                'thumbnail' => $thumbnail_url,
+                'id'         => $post->ID,
+                'title'      => $post->post_title,
+                'slug'       => $post->post_name,
+                'thumbnail'  => $thumbnail_url,
                 '_capacity'  => $capacity,
-                'content'   => $post->post_content
+                'content'    => $post->post_content
             );
             return new \WP_REST_Response($data, 200);
         } else {
@@ -159,14 +181,19 @@ class Booking_CPT_Rest
             $capacity
         );
 
-        if (! empty($_FILES['image'])) {
-
+        if (! isset($_FILES['file']) ||empty($_FILES['file']['name']) ) {
+            return new WP_Error(
+                'file_required',
+                'Please upload a resource image.',
+                array('status' => 400)
+            );
+        } else {
             require_once ABSPATH . 'wp-admin/includes/image.php';
             require_once ABSPATH . 'wp-admin/includes/file.php';
             require_once ABSPATH . 'wp-admin/includes/media.php';
 
             $attachment_id = media_handle_upload(
-                'image',
+                'file',
                 $post_id
             );
 
@@ -284,7 +311,7 @@ class Booking_CPT_Rest
             );
         }
 
-        if (! empty($_FILES['image'])) {
+        if (! empty($_FILES['file'])) {
 
             require_once ABSPATH . 'wp-admin/includes/image.php';
             require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -300,7 +327,7 @@ class Booking_CPT_Rest
             }
 
             $new_attachment_id = media_handle_upload(
-                'image',
+                'file',
                 $id
             );
 
@@ -354,7 +381,67 @@ class Booking_CPT_Rest
             'message'     => 'Resource and its thumbnail deleted successfully.',
         ], 200);
     }
-}
 
+    // Validations 
+
+    public function validate_title($value)
+    {
+        if (empty($value)) {
+            return new WP_Error(
+                'invalid_title',
+                'Title is required.',
+                array('status' => 400)
+            );
+        }
+    }
+
+    public function validate_file($value)
+    {
+        if (empty($value)) {
+            return new WP_Error(
+                'file_required',
+                'Please upload a resource image.',
+                array('status' => 400)
+            );
+        }
+    }
+
+    public function validate_content($value)
+    {
+
+        if (empty($value)) {
+            return new WP_Error(
+                'invalid_content',
+                'Content is required.',
+                array('status' => 400)
+            );
+        }
+    }
+
+    public function validate_capacity($value)
+    {
+
+        if ($value < 4) {
+            return new WP_Error(
+                'invalid_capacity',
+                'Capacity must be at least 4.',
+                array('status' => 400)
+            );
+        }
+    }
+
+    public function permission_call()
+    {
+        // error_log(
+        //     'User ID: ' . get_current_user_id()
+        // );
+
+        // error_log(
+        //     'Can edit others: ' .
+        //         (current_user_can('edit_others_posts') ? 'YES' : 'NO')
+        // );
+        return current_user_can('edit_others_posts');
+    }
+}
 
 new Booking_CPT_Rest();
