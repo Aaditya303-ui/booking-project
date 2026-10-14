@@ -87,20 +87,13 @@ class Booking_Admin
 	 */
 	public function enqueue_scripts()
 	{
+		$handle = $this->plugin_name;
 
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Booking_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Booking_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
+		wp_enqueue_script($handle, plugin_dir_url(__FILE__) . 'js/booking-admin.js', array('jquery'), $this->version, false);
 
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/booking-admin.js', array('jquery'), $this->version, false);
+		wp_localize_script($handle, 'bookingApiSettings', array(
+			'nonce' => wp_create_nonce('wp_rest')
+		));
 	}
 
 	public static function add_booking_menu()
@@ -119,9 +112,11 @@ class Booking_Admin
 			'add resource',
 			'manage_options',
 			'add-resource',
-			array(__CLASS__,'add_resource_call')
+			array(__CLASS__, 'add_resource_call')
 		);
 	}
+
+
 
 	public static function resource_admin_page_callback()
 	{
