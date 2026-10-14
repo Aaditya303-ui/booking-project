@@ -6,6 +6,7 @@
     "autoload": {
         "psr-4": {
             "Aj\\Booking\\": "src/",
+            "Aj\\Booking\\Table\\": "src/Table/",
             "Aj\\Post\\": "src/Post/",
             "Aj\\Admin\\": "admin/"
         },
