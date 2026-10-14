@@ -267,6 +267,7 @@
     console.log("Yess whose this");
   });
 
+  
   $(document).on("change", "#edit-resource-file", function (e) {
     if (e.target.files && e.target.files[0]) {
       let reader = new FileReader();

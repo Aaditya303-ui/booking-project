@@ -86,3 +86,4 @@ function run_booking()
 run_booking();
 
 new \Aj\Booking\Booking_CPT_Rest();
+new \Aj\Booking\Table\Booking_Table_Rest();
