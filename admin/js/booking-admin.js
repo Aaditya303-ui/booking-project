@@ -1,6 +1,6 @@
 (function ($) {
   "use strict";
-
+  
   function loadResourceList() {
     $.get(
       "http://localhost/wordpress/wp-json/myapi/v1/resources",
@@ -97,15 +97,15 @@
     });
   });
 
-  $(document).on("submit", function (e) {
+  $(document).on("submit", "#add-resource-form", function (e) {
     e.preventDefault();
 
     let formData = new FormData();
 
-    let title = document.getElementById("resource_title").value;
-    let content = document.getElementById("resource_content").value;
-    let capacity = document.getElementById("resource_capacity").value;
-    let file = document.getElementById("file").value;
+    let title = document.getElementById("resource_title").value ?? '';
+    let content = document.getElementById("resource_content").value ?? '';
+    let capacity = document.getElementById("resource_capacity").value ?? 1;
+    let file = document.getElementById("file").value ?? '';
 
     if (title.trim() === "") {
       $("#titleerr").text("* title is required");
@@ -153,7 +153,7 @@
         ) {
           xhr.setRequestHeader("X-WP-Nonce", bookingApiSettings.nonce);
         }
-        console.log(bookingApiSettings);
+        //console.log(bookingApiSettings);
       },
       success: function (response) {
         alert("Resource added successfully!");
@@ -161,6 +161,7 @@
         $("#titleerr").text("");
         $("#contenterr").text("");
         $("#fileerr").text("");
+        $("#profileDisplay").attr("src","");
       },
       error: function (xhr) {
         console.error("Add failed:", xhr.responseText);
@@ -190,10 +191,11 @@
         $("#edit-resource-content").val(content);
         $("#edit-resource-capacity").val(capacity);
 
+
         if (thumbnail) {
           $("#edit-image-preview").html(`
                 <p style="font-size: 12px; color: #666; margin: 0 0 5px 0;">Current Image:</p>
-                <img src="${thumbnail}" id="curr_img" style="max-width: 80px; height: auto; border-radius: 4px;" />
+                <img src="${thumbnail}" id="curr_img" style="max-width: 200px; height: 160px; border-radius: 4px;" />
             `);
         } else {
           $("#edit-image-preview").html(
@@ -217,6 +219,7 @@
       formData.append("title", $("#edit-resource-title").val());
       formData.append("content", $("#edit-resource-content").val());
       formData.append("_capacity", $("#edit-resource-capacity").val());
+      
 
       let fileInput = $("#edit-resource-file")[0].files[0];
       if (fileInput) {
@@ -267,7 +270,6 @@
     console.log("Yess whose this");
   });
 
-  
   $(document).on("change", "#edit-resource-file", function (e) {
     if (e.target.files && e.target.files[0]) {
       let reader = new FileReader();
@@ -294,5 +296,8 @@
     if ($(e.target).is("#resource-modal")) {
       $("#resource-modal").fadeOut(200);
     }
+
+    
   });
+  
 })(jQuery);

@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'Aj\\Post\\' => array($baseDir . '/src/Post'),
     'Aj\\Booking\\Table\\' => array($baseDir . '/src/Table'),
+    'Aj\\Booking\\Frontend\\' => array($baseDir . '/public'),
     'Aj\\Booking\\' => array($baseDir . '/src'),
     'Aj\\Admin\\' => array($baseDir . '/admin'),
 );
