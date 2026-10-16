@@ -1,6 +1,8 @@
 <?php
 
-require_once plugin_dir_path(__FILE__). './class-booking-cpt-rest.php';
+require_once plugin_dir_path(__FILE__) . './class-booking-cpt-rest.php';
+// require_once plugin_dir_path(__FILE__) . './shortcodes.php';
+
 
 /**
  * The file that defines the core plugin class
@@ -29,7 +31,8 @@ require_once plugin_dir_path(__FILE__). './class-booking-cpt-rest.php';
  * @subpackage Booking/includes
  * @author     aj <test@gmail.com>
  */
-class Booking {
+class Booking
+{
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
@@ -68,8 +71,9 @@ class Booking {
 	 *
 	 * @since    1.0.0
 	 */
-	public function __construct() {
-		if ( defined( 'BOOKING_VERSION' ) ) {
+	public function __construct()
+	{
+		if (defined('BOOKING_VERSION')) {
 			$this->version = BOOKING_VERSION;
 		} else {
 			$this->version = '1.0.0';
@@ -80,7 +84,6 @@ class Booking {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-
 	}
 
 	/**
@@ -99,33 +102,33 @@ class Booking {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function load_dependencies() {
+	private function load_dependencies()
+	{
 
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-booking-loader.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-booking-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-booking-i18n.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-booking-i18n.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-booking-admin.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-booking-admin.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-booking-public.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-booking-public.php';
 
 		$this->loader = new Booking_Loader();
-
 	}
 
 	/**
@@ -137,12 +140,12 @@ class Booking {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function set_locale() {
+	private function set_locale()
+	{
 
 		$plugin_i18n = new Booking_i18n();
 
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-
+		$this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
 	}
 
 	/**
@@ -152,13 +155,13 @@ class Booking {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_admin_hooks() {
+	private function define_admin_hooks()
+	{
 
-		$plugin_admin = new Booking_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin = new Booking_Admin($this->get_plugin_name(), $this->get_version());
 
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-
+		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
+		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 	}
 
 	/**
@@ -168,13 +171,13 @@ class Booking {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_public_hooks() {
+	private function define_public_hooks()
+	{
 
-		$plugin_public = new Booking_Public( $this->get_plugin_name(), $this->get_version() );
+		$plugin_public = new Booking_Public($this->get_plugin_name(), $this->get_version());
 
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-
+		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
+		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 	}
 
 	/**
@@ -182,7 +185,8 @@ class Booking {
 	 *
 	 * @since    1.0.0
 	 */
-	public function run() {
+	public function run()
+	{
 		$this->loader->run();
 	}
 
@@ -193,7 +197,8 @@ class Booking {
 	 * @since     1.0.0
 	 * @return    string    The name of the plugin.
 	 */
-	public function get_plugin_name() {
+	public function get_plugin_name()
+	{
 		return $this->plugin_name;
 	}
 
@@ -203,7 +208,8 @@ class Booking {
 	 * @since     1.0.0
 	 * @return    Booking_Loader    Orchestrates the hooks of the plugin.
 	 */
-	public function get_loader() {
+	public function get_loader()
+	{
 		return $this->loader;
 	}
 
@@ -213,8 +219,32 @@ class Booking {
 	 * @since     1.0.0
 	 * @return    string    The version number of the plugin.
 	 */
-	public function get_version() {
+	public function get_version()
+	{
 		return $this->version;
 	}
 
+	public function enqueue_scripts()
+	{
+
+		wp_enqueue_script(
+			'booking-public-script',
+			plugin_dir_url(dirname(__FILE__)) . 'public/js/booking-public.js',
+			array('jquery'),
+			true
+		);
+
+		$handle = $this->plugin_name;
+		
+		wp_localize_script($handle, 'bookingApiSettings', array(
+			'nonce' => wp_create_nonce('wp_rest')
+		));
+	}
 }
+
+// function add_shortcode_fn()
+// {
+//     return '<h2>Our Booking Resources</h2>';
+// }
+
+// add_shortcode('demowork', 'add_shortcode_fn');

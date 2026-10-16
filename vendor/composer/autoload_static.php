@@ -11,6 +11,7 @@ class ComposerStaticInit3639343bad2be116c51564584ce99332
         array (
             'Aj\\Post\\' => 8,
             'Aj\\Booking\\Table\\' => 17,
+            'Aj\\Booking\\Frontend\\' => 20,
             'Aj\\Booking\\' => 11,
             'Aj\\Admin\\' => 9,
         ),
@@ -24,6 +25,10 @@ class ComposerStaticInit3639343bad2be116c51564584ce99332
         'Aj\\Booking\\Table\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src/Table',
+        ),
+        'Aj\\Booking\\Frontend\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/public',
         ),
         'Aj\\Booking\\' =>
         array (

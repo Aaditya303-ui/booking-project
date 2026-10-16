@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ .'/includes/shortcodes.php';
 
 /**
  * The plugin bootstrap file
@@ -85,5 +86,8 @@ function run_booking()
 }
 run_booking();
 
+
 new \Aj\Booking\Booking_CPT_Rest();
 new \Aj\Booking\Table\Booking_Table_Rest();
+new \Aj\Booking\Frontend\Resource_List();
+// new \Aj\Booking\Frontend\Resource_List();

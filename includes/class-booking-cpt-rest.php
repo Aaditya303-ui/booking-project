@@ -73,6 +73,27 @@ class Booking_CPT_Rest
                 'methods'             => array('PATCH', 'PUT', 'POST'),
                 'callback'            => array($this, 'update_cpt_data'),
                 'permission_callback' => array($this, 'permission_call'),
+
+                'args' => array(
+
+                    'title' => array(
+                        'required'          => true,
+                        'sanitize_callback' => 'sanitize_text_field',
+                        'validate_callback' => array($this, 'validate_title'),
+                    ),
+
+                    'content' => array(
+                        'required'                => true,
+                        'sanitize_callback'       => 'sanitize_textarea_field',
+                        'validate_callback'       => array($this, 'validate_content'),
+                    ),
+
+                    '_capacity' => array(
+                        'required'          => true,
+                        'sanitize_callback' => 'absint',
+                        'validate_callback' => array($this, 'validate_capacity'),
+                    ),
+                )
             )
         );
 
@@ -300,7 +321,7 @@ class Booking_CPT_Rest
         }
 
 
-        $capacity = $request->get_param('capacity');
+        $capacity = $request->get_param('_capacity');
 
         if ($capacity !== null) {
 

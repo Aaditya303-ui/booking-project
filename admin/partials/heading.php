@@ -40,11 +40,13 @@
             <p>
                 <label for="edit-resource-title"><strong>Title:</strong></label><br>
                 <input type="text" id="edit-resource-title" class="regular-text" style="width: 100%; padding: 6px; margin-top: 5px;">
+                <p style="color:red" id="titleerr"></p>
             </p>
             
             <p>
                 <label for="edit-resource-content"><strong>Content:</strong></label><br>
                 <textarea id="edit-resource-content" rows="4" style="width: 100%; padding: 6px; margin-top: 5px;"></textarea>
+                <p style="color:red" id="contenterr"></p>
             </p>
 
             <p>
@@ -57,6 +59,7 @@
             <p>
                 <label for="edit-resource-capacity"><strong>Capacity:</strong></label><br>
                 <input type="number" id="edit-resource-capacity" class="regular-text" style="width: 100%; padding: 6px; margin-top: 5px;">
+                <p style="color:red" id="capacityerr"></p>
             </p>
             
             <p style="margin-top: 20px; text-align: right;">
