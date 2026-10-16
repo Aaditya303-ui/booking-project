@@ -108,9 +108,17 @@ class Booking_Public
 		);
 
 		$handle = $this->plugin_name;
-		
+
 		wp_localize_script($handle, 'bookingApiSettings', array(
 			'nonce' => wp_create_nonce('wp_rest')
 		));
+
+		wp_enqueue_script(
+			'booking-availability-js',
+			plugin_dir_url(__FILE__) . '../public/js/availability.js',
+			array('jquery'),
+			'1.0',
+			true
+		);
 	}
 }
