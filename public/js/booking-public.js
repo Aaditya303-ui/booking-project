@@ -142,9 +142,6 @@
       let requester_email = $("#requester_email").val() ?? "";
       let start_time = $("#start_time").val() ?? "";
       let end_time = $("#end_time").val() ?? "";
-      let rid = document.getElementById("#resource_id1");
-
-      console.log(rid);
 
       formData.append("resource_id", resource_id);
       formData.append("requester_name", requester_name);
@@ -172,11 +169,19 @@
           console.log(bookingApiSettings);
         },
         success: function (response) {
+          
           $("#booking-modal").fadeOut(200);
+          $("#resource_id1").val("");
+          $("#requester_name").val("");
+          $("#requester_email").val("");
+          $("#start_time").val("");
+          $("#end_time").val("");
+          $("#requester_name").val("");
+
           Swal.fire({
             icon: "success",
             title: "Success!",
-            text: "Resource deleted successfully.",
+            text: "You will be notified soon",
           });
         },
       });

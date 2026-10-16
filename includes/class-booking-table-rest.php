@@ -40,7 +40,7 @@ class Booking_Table_Rest
                 'methods'             => 'POST',
                 'callback'            => array($this, 'send_booking_data'),
                 'permission_callback' => array($this, 'permission_call'),
-                // 'permission_callback' => '__return_true',
+                //'permission_callback' => '__return_true',
 
                 'args' => array(
 

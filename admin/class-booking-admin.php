@@ -94,6 +94,7 @@ class Booking_Admin
 		wp_localize_script($handle, 'bookingApiSettings', array(
 			'nonce' => wp_create_nonce('wp_rest')
 		));
+
 	}
 
 	public static function add_booking_menu()
