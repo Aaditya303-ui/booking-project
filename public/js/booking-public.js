@@ -81,20 +81,21 @@
 
     $(document).on("click", ".view-resource-link", function (e) {
       e.preventDefault();
-      let oldid = document.getElementById("resource_id1");
+      let oldid = document.getElementById("resource_Id");
 
       if (oldid) {
-        oldid.remove();
+        oldid.remove(); 
       }
       let resourceId = $(this).data("id");
+      console.log(resourceId);
 
       const newHiddenInput = document.createElement("input");
       const form = document.getElementById("booking-form");
 
       newHiddenInput.type = "hidden";
-      newHiddenInput.name = "resourceId";
+      newHiddenInput.name = "resourceId1";
       newHiddenInput.value = resourceId;
-      newHiddenInput.id = "resource_id1";
+      newHiddenInput.id = "resource_Id";
 
       let data = newHiddenInput;
       form.appendChild(data);
@@ -137,7 +138,7 @@
 
       let formData = new FormData();
 
-      let resource_id = $("#resource_id1").val() ?? "";
+      let resource_id = $("#resource_Id").val() ?? "";
       let requester_name = $("#requester_name").val() ?? "";
       let requester_email = $("#requester_email").val() ?? "";
       let start_time = $("#start_time").val() ?? "";

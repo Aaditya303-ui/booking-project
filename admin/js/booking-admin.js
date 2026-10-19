@@ -297,7 +297,6 @@
       $("#resource-modal").fadeOut(200);
     }
 
-    
   });
   
 })(jQuery);

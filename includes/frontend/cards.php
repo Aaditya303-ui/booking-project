@@ -29,7 +29,7 @@
         <!-- Booking form -->
 
         <h3>Request Booking</h3>
-
+        <div id="time-occupied"></div>
         <form id="booking-form">
             <div id="ajax-slot-status1"></div>
             <!-- We need to know which resource user selected -->

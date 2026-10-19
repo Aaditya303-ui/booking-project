@@ -98,6 +98,70 @@ class Booking_Table_Rest
                 'permission_callback' => '__return_true'
             )
         );
+
+        register_rest_route(
+            'myapi/v1',
+            '/booking/booked/(?P<rid>\d+)/(?P<date>\d{4}-\d{2}-\d{2})',
+            array(
+                'methods'  => 'GET',
+                'callback' => array($this, 'get_booked_data')
+            )
+        );
+
+        register_rest_route(
+            'myapi/v1',
+            '/booking/requests',
+            array(
+                'methods'  => 'GET',
+                'callback' => array($this, 'get_requesters_data')
+            )
+        );
+    }
+
+    public function get_booked_data(WP_REST_Request $request)
+    {
+        global $wpdb;
+
+        $resource_id = absint($request->get_param('rid'));
+        $date = sanitize_text_field($request->get_param('date'));
+
+        $table_name = $wpdb->prefix . 'bookings';
+
+        $query = $wpdb->prepare(
+            "SELECT *
+         FROM {$table_name}
+         WHERE DATE(start_time) = %s
+         AND resource_id = %d
+         AND status = %s",
+            $date,
+            $resource_id,
+            'confirmed'
+        );
+
+        $results = $wpdb->get_results($query);
+
+        $data = array();
+
+        foreach ($results as $row) {
+
+            $start = explode(' ', $row->start_time);
+            $end = explode(' ', $row->end_time);
+
+            $data[] = array(
+                'id'              => $row->id,
+                'resource_id'     => $row->resource_id,
+                'requester_name'  => $row->requester_name,
+                'requester_email' => $row->requester_email,
+
+                'start_date'      => $start[0],
+                'start_time'      => $start[1],
+
+                'end_date'        => $end[0],
+                'end_time'        => $end[1],
+            );
+        }
+
+        return new WP_REST_Response($data, 200);
     }
 
     public function get_booking_data()
@@ -162,6 +226,22 @@ class Booking_Table_Rest
                 500
             );
         }
+
+        $admin_email = get_option('admin_email');
+
+        $subject = 'New Booking Request Received';
+
+        $message  = "A new booking request has been submitted.\n\n";
+        $message .= "Booking ID: " . $wpdb->insert_id . "\n";
+        $message .= "Requester Name: " . $name . "\n";
+        $message .= "Requester Email: " . $email . "\n";
+        $message .= "Resource ID: " . $resource_id . "\n";
+        $message .= "Start Time: " . $start_time . "\n";
+        $message .= "End Time: " . $end_time . "\n";
+        $message .= "Status: Pending\n\n";
+        $message .= "Please log in to WordPress to review this request.";
+
+        wp_mail($admin_email, $subject, $message);
 
         return new WP_REST_Response(
             array(
@@ -252,6 +332,41 @@ class Booking_Table_Rest
         if ($request->has_param('status')) {
             $data['status'] = sanitize_text_field($request->get_param('status'));
             $format[] = '%s';
+
+            $to = $existing->requester_email;
+            $subject = 'Booking Status Updated';
+
+            $status = sanitize_text_field($request->get_param('status'));
+
+            $message = "";
+
+            if ($status == "confirmed") {
+
+                $message = "Hello " . $existing->requester_name . ",\n\n";
+                $message .= "Great news! Your booking request has been confirmed.\n\n";
+                $message .= "Your selected booking slot has been successfully reserved. We will contact you soon with any additional details regarding your booking.\n\n";
+                $message .= "Thank you for choosing us.\n\n";
+                $message .= "Best regards,\n";
+                $message .= "Booking Team";
+            } elseif ($status == "cancelled") {
+
+                $message = "Hello " . $existing->requester_name . ",\n\n";
+                $message .= "We regret to inform you that your booking request has been cancelled.\n\n";
+                $message .= "We apologize for any inconvenience caused. Please try selecting another available time slot if you would still like to make a booking.\n\n";
+                $message .= "Thank you for your understanding.\n\n";
+                $message .= "Best regards,\n";
+                $message .= "Booking Team";
+            } elseif ($status == "expired") {
+
+                $message = "Hello " . $existing->requester_name . ",\n\n";
+                $message .= "We would like to inform you that your booking request has expired.\n\n";
+                $message .= "Unfortunately, the booking was not confirmed within the required time. Please submit a new booking request for an available time slot if you would still like to proceed.\n\n";
+                $message .= "Thank you for your understanding.\n\n";
+                $message .= "Best regards,\n";
+                $message .= "Booking Team";
+            }
+
+            wp_mail($to, $subject, $message);
         }
 
         $where        = array('id' => $id);
@@ -328,6 +443,44 @@ class Booking_Table_Rest
             ),
             200
         );
+    }
+
+    public function get_requesters_data()
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'bookings';
+
+        $query = $wpdb->prepare("
+                    SELECT 
+                        b.id,
+                        p.post_title,
+                        b.requester_name,
+                        b.start_time,
+                        b.end_time,
+                        b.status,
+                        b.requester_email
+                    FROM $table_name AS b
+                    LEFT JOIN wp_posts AS p
+                    ON b.resource_id = p.ID
+        ");
+
+        $results = $wpdb->get_results($query);
+
+        $data = array();
+
+        foreach ($results as $row) {
+            $data[] = array(
+                'id'             => $row->id,
+                'post_title'     => $row->post_title,
+                'requester_name' => $row->requester_name,
+                'requester_email' => $row->requester_email,
+                'start_time'     => $row->start_time,
+                'end_time'       => $row->end_time,
+                'status'         => $row->status
+            );
+        }
+        return new WP_REST_Response($data, 200);
     }
 
     // Validation 

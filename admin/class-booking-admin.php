@@ -77,7 +77,13 @@ class Booking_Admin
 		 * class.
 		 */
 
-		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/booking-admin.css', array(), $this->version, 'all');
+		wp_enqueue_style(
+            $this->plugin_name . '-admin-style',
+            plugin_dir_url(__FILE__) . 'css/booking-admin.css',
+            array(),
+            $this->version,
+            'all'
+        );
 	}
 
 	/**
@@ -89,12 +95,33 @@ class Booking_Admin
 	{
 		$handle = $this->plugin_name;
 
-		wp_enqueue_script($handle, plugin_dir_url(__FILE__) . 'js/booking-admin.js', array('jquery'), $this->version, false);
+		wp_enqueue_script(
+			$handle,
+			plugin_dir_url(__FILE__) . 'js/booking-admin.js',
+			array('jquery'),
+			$this->version,
+			false
+		);
+
+		wp_enqueue_script(
+			'sweetalert2',
+			'https://cdn.jsdelivr.net/npm/sweetalert2@11',
+			array(),
+			'11',
+			true
+		);
+
+		wp_enqueue_script(
+			"$handle-request-booking",
+			plugin_dir_url(__FILE__) . 'js/request-admin.js',
+			array('jquery'),
+			$this->version,
+			false
+		);
 
 		wp_localize_script($handle, 'bookingApiSettings', array(
 			'nonce' => wp_create_nonce('wp_rest')
 		));
-
 	}
 
 	public static function add_booking_menu()
@@ -115,6 +142,15 @@ class Booking_Admin
 			'add-resource',
 			array(__CLASS__, 'add_resource_call')
 		);
+
+		add_submenu_page(
+			'resource-admin-page',
+			'display requests',
+			'display request',
+			'manage_options',
+			'display-request',
+			array(__CLASS__, 'display_request_call')
+		);
 	}
 
 
@@ -128,6 +164,12 @@ class Booking_Admin
 	{
 		require_once plugin_dir_path(__FILE__) . '/partials/add_resource.php';
 	}
+
+	public static function display_request_call()
+	{
+		require_once plugin_dir_path(__FILE__) . '/partials/display_request.php';
+	}
 }
 
 add_action('admin_menu', [Booking_Admin::class, 'add_booking_menu']);
+

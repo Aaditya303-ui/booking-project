@@ -235,7 +235,7 @@ class Booking
 		);
 
 		$handle = $this->plugin_name;
-		
+
 		wp_localize_script($handle, 'bookingApiSettings', array(
 			'nonce' => wp_create_nonce('wp_rest')
 		));
