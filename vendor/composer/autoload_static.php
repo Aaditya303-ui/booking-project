@@ -10,7 +10,6 @@ class ComposerStaticInit3639343bad2be116c51564584ce99332
         'A' =>
         array (
             'Aj\\Post\\' => 8,
-            'Aj\\Booking\\Table\\' => 17,
             'Aj\\Booking\\Frontend\\' => 20,
             'Aj\\Booking\\' => 11,
             'Aj\\Admin\\' => 9,
@@ -21,10 +20,6 @@ class ComposerStaticInit3639343bad2be116c51564584ce99332
         'Aj\\Post\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src/Post',
-        ),
-        'Aj\\Booking\\Table\\' =>
-        array (
-            0 => __DIR__ . '/../..' . '/src/Table',
         ),
         'Aj\\Booking\\Frontend\\' =>
         array (
@@ -42,6 +37,8 @@ class ComposerStaticInit3639343bad2be116c51564584ce99332
 
     public static $classMap = array (
         'Aj\\Booking\\Booking_CPT_Rest' => __DIR__ . '/../..' . '/includes/class-booking-cpt-rest.php',
+        'Aj\\Booking\\Frontend\\Resource_List' => __DIR__ . '/../..' . '/includes/shortcodes.php',
+        'Aj\\Booking\\Table\\Blackout\\Booking_Blackout_Rest' => __DIR__ . '/../..' . '/includes/class-booking-blackout-rest.php',
         'Aj\\Booking\\Table\\Booking_Table_Rest' => __DIR__ . '/../..' . '/includes/class-booking-table-rest.php',
         'Aj\\Post\\Booking_Post' => __DIR__ . '/../..' . '/includes/class-booking-cpt.php',
         'Aj\\Table\\Booking_Db' => __DIR__ . '/../..' . '/includes/class-booking-db.php',

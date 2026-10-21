@@ -119,6 +119,14 @@ class Booking_Admin
 			false
 		);
 
+		wp_enqueue_script(
+			"$handle-blackout-booking",
+			plugin_dir_url(__FILE__) . 'js/blackout-admin.js',
+			array('jquery'),
+			$this->version,
+			false
+		);
+
 		wp_localize_script($handle, 'bookingApiSettings', array(
 			'nonce' => wp_create_nonce('wp_rest')
 		));
@@ -151,6 +159,24 @@ class Booking_Admin
 			'display-request',
 			array(__CLASS__, 'display_request_call')
 		);
+
+		add_submenu_page(
+			'resource-admin-page',
+			'blackout dates',
+			'blackout dates',
+			'manage_options',
+			'display-booking-settings',
+			array(__CLASS__, 'display_booking_settings')
+		);
+
+		add_submenu_page(
+			'resource-admin-page',
+			'Buisness Hours',
+			'Buisness Hours',
+			'manage_options',
+			'display-buisness-settings',
+			array(__CLASS__, 'display_buisness_settings')
+		);
 	}
 
 
@@ -168,6 +194,16 @@ class Booking_Admin
 	public static function display_request_call()
 	{
 		require_once plugin_dir_path(__FILE__) . '/partials/display_request.php';
+	}
+
+	public static function display_booking_settings()
+	{
+		require_once plugin_dir_path(__FILE__) . '/partials/display_settings.php';
+	}
+
+	public static function display_buisness_settings()
+	{
+		require_once plugin_dir_path(__FILE__). '/partials/display_buisness.php';
 	}
 }
 
