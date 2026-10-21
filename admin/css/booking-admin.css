@@ -468,3 +468,214 @@ img {
     gap: 10px;
     margin-top: 20px;
 }
+
+
+
+
+/* Main container */
+.blackout-wrap {
+    margin: 20px 20px 20px 0;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+}
+
+.blackout-wrap * {
+    box-sizing: border-box;
+}
+
+/* Header */
+.blackout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.blackout-header h1 {
+    margin: 0 0 5px;
+    font-size: 23px;
+    color: #23282d;
+}
+
+.blackout-header p {
+    margin: 0;
+    color: #646970;
+    font-size: 13px;
+}
+
+/* Add button */
+.blackout-add-btn {
+    padding: 8px 14px;
+    background: #2271b1;
+    color: #fff;
+    border: 1px solid #2271b1;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.blackout-add-btn:hover {
+    background: #135e96;
+}
+
+/* Table */
+.blackout-table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.blackout-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 13px;
+}
+
+.blackout-table th {
+    padding: 12px;
+    text-align: left;
+    color: #23282d;
+    background: #f6f7f7;
+    border: 1px solid #c3c4c7;
+}
+
+.blackout-table td {
+    padding: 12px;
+    color: #3c434a;
+    border: 1px solid #ddd;
+}
+
+.blackout-table tbody tr:hover {
+    background: #f9f9f9;
+}
+
+/* Delete button */
+.blackout-table #delete-btn {
+    padding: 5px 10px;
+    color: #b32d2e;
+    background: #fff;
+    border: 1px solid #b32d2e;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.blackout-table #delete-btn:hover {
+    color: #fff;
+    background: #b32d2e;
+}
+
+/* Empty table message */
+.blackout-empty {
+    padding: 15px;
+    color: #646970;
+    text-align: center;
+}
+
+/* Add form popup */
+/* jQuery fadeIn() controls when this appears */
+#blackout-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 350px;
+    max-width: calc(100% - 30px);
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 99999;
+}
+
+/* Popup heading */
+#blackout-modal h2,
+#blackout-modal h3 {
+    margin: 0 0 20px;
+    color: #23282d;
+    font-size: 20px;
+}
+
+/* Form labels */
+#blackout-form label {
+    display: block;
+    margin-bottom: 6px;
+    color: #23282d;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Date and reason fields */
+#blackout-form input[type="date"],
+#blackout-form input[type="text"] {
+    width: 100%;
+    min-height: 38px;
+    padding: 7px 10px;
+    margin-bottom: 15px;
+    background: #fff;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+    color: #2c3338;
+    font-size: 14px;
+}
+
+#blackout-form input:focus {
+    outline: 1px solid #2271b1;
+    border-color: #2271b1;
+}
+
+/* Form buttons */
+#blackout-form button {
+    padding: 8px 12px;
+    border-radius: 3px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* Save button */
+#blackout-form button[type="submit"] {
+    background: #2271b1;
+    color: #fff;
+    border: 1px solid #2271b1;
+}
+
+#blackout-form button[type="submit"]:hover {
+    background: #135e96;
+}
+
+/* Cancel button */
+#cancel-blackout {
+    background: #f6f7f7;
+    color: #2c3338;
+    border: 1px solid #8c8f94;
+}
+
+#cancel-blackout:hover {
+    background: #e5e5e5;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .blackout-wrap {
+        margin-right: 10px;
+        padding: 12px;
+    }
+
+    .blackout-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    #blackout-modal {
+        width: 320px;
+    }
+
+    .blackout-table th,
+    .blackout-table td {
+        padding: 9px;
+    }
+}

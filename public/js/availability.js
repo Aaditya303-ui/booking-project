@@ -6,6 +6,7 @@
       e.preventDefault();
 
       let allBookings = [];
+      let blackout = [];
       let oldid = document.getElementById("resource_id1");
       // let oldRecord = document.getElementById("time-occupied");
 
@@ -13,6 +14,13 @@
         "http://localhost/wordpress/wp-json/myapi/v1/bookings",
         function (data) {
           allBookings = data;
+        },
+      );
+
+      $.get(
+        `http://localhost/wordpress/wp-json/myapi/v1/blackout`,
+        function (data) {
+          blackout = data;
         },
       );
 
@@ -34,9 +42,14 @@
         let end_time = $("#end_time").val();
 
         let parts = start_time.split("T");
+
         let date = parts[0];
-        // let time = parts[1];
-        // let bookedData = [];
+
+        // To fetch specific date
+        let t = new Date(date);
+        let dayName = t.toLocaleDateString("en-US", {
+          weekday: "long",
+        });
 
         $.get(
           `http://localhost/wordpress/wp-json/myapi/v1/booking/booked/${resourceId}/${date}`,
@@ -82,7 +95,7 @@
                 let updated_start_time = `${sHours}:${sMinutes} ${period}`;
                 let updated_end_time = `${eHours}:${eMinutes}:${period1}`;
 
-                console.log(updated_start_time);
+                //console.log(updated_start_time);
 
                 html += `
                     <div class="occupied-slot">
@@ -116,6 +129,30 @@
         }
 
         let isOverlapping = false;
+        let isBlackOut = false;
+        // console.log(blackout);
+
+        blackout.forEach(function (b) {
+          if (date == b.exdate) {
+            isBlackOut = true;
+          }
+        });
+
+        if (isBlackOut == true) {
+          statusBox.text("We are closed durring that day").css({
+            display: "block",
+            background: "#ffebee",
+            color: "#c62828",
+            border: "1px solid #ef9a9a",
+          });
+          submitbtn.style.display = "none";
+          return;
+        } else {
+          statusBox.css({
+            display: "none",
+          });
+          submitbtn.removeAttribute("style");
+        }
 
         allBookings.forEach(function (booking) {
           if (
@@ -137,6 +174,7 @@
               "This time slot overlaps with an existing booking. Please choose another time.",
             )
             .css({
+              display: "block",
               background: "#ffebee",
               color: "#c62828",
               border: "1px solid #ef9a9a",
@@ -144,7 +182,9 @@
           submitbtn.style.display = "none";
           return;
         } else {
-          statusBox.style = "none";
+          statusBox.css({
+            display: "none",
+          });
           submitbtn.removeAttribute("style");
         }
       });

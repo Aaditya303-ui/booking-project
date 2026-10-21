@@ -29,7 +29,7 @@
     </div>
 </div>
 
-<!-- Update the content -->
+<!-- Updating the content -->
 <div id="resource-edit-modal" class="booking-modal-overlay" style="display: none;">
     <div class="booking-modal-content">
         <h2 style="margin-top: 0;">Edit Resource</h2>

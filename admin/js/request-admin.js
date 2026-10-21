@@ -10,7 +10,7 @@
         let i = 0;
         let rowsHtml = "";
         booking = data;
-        console.log(booking);
+        //console.log(booking);
 
         while (i < data.length) {
           let id = data[i].id;
