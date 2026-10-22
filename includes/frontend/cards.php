@@ -69,29 +69,34 @@
             <div class="booking-field">
 
                 <label for="start-time">
-                    Start Time
+                    Date
                 </label>
 
-                <input
+                <!-- <input
                     type="datetime-local"
                     id="start_time"
                     name="start_time"
-                    required>
-
+                    required> -->
+                <input type="date" name="" id="date">
+                <br><br>
+                <label>Start Time</label>
+                <input type="time" name="" id="start_time">
+                <br><br>
+                <div id="end-time" style="display:none;">
+                    <label>End Time</label>
+                    <input type="time" 
+                    name="" 
+                    id="end_time">
+                </div>
+                <br><br>
             </div>
 
             <div class="booking-field">
-
-                <label for="end-time">
-                    End Time
-                </label>
-
-                <input
+                <!-- <input
                     type="datetime-local"
                     id="end_time"
                     name="end_time"
-                    required>
-
+                    required> -->
             </div>
 
             <button id="btn1" type="submit">

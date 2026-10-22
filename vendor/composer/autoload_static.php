@@ -40,6 +40,7 @@ class ComposerStaticInit3639343bad2be116c51564584ce99332
         'Aj\\Booking\\Frontend\\Resource_List' => __DIR__ . '/../..' . '/includes/shortcodes.php',
         'Aj\\Booking\\Table\\Blackout\\Booking_Blackout_Rest' => __DIR__ . '/../..' . '/includes/class-booking-blackout-rest.php',
         'Aj\\Booking\\Table\\Booking_Table_Rest' => __DIR__ . '/../..' . '/includes/class-booking-table-rest.php',
+        'Aj\\Booking\\Table\\Buisness\\Booking_Buisness_Rest' => __DIR__ . '/../..' . '/includes/class-booking-buiseness-rest.php',
         'Aj\\Post\\Booking_Post' => __DIR__ . '/../..' . '/includes/class-booking-cpt.php',
         'Aj\\Table\\Booking_Db' => __DIR__ . '/../..' . '/includes/class-booking-db.php',
         'Booking' => __DIR__ . '/../..' . '/includes/class-booking.php',

@@ -51,7 +51,8 @@
       start_time1,
       end_time1,
       status1,
-      requester_email1;
+      requester_email1,
+      date1;
 
     let oldid = document.getElementById("request_Id");
 
@@ -76,16 +77,18 @@
     let i = 0;
     while (i < booking.length) {
       if (resourceId == booking[i]["id"]) {
-        id1 = booking[i]["id"];
-        post_title1 = booking[i]["post_title"];
-        requester_name1 = booking[i]["requester_name"];
-        start_time1 = booking[i]["start_time"];
-        end_time1 = booking[i]["end_time"];
-        status1 = booking[i]["status"];
+        id1              = booking[i]["id"];
+        post_title1      = booking[i]["post_title"];
+        requester_name1  = booking[i]["requester_name"];
+        start_time1      = booking[i]["start_time"];
+        end_time1        = booking[i]["end_time"];
+        status1          = booking[i]["status"];
         requester_email1 = booking[i]["requester_email"];
+        date1            = booking[i]["date"];      
       }
       i++;
     }
+    //console.log(booking);
 
     $("#display_request_id").html(`Booking Request #${id1}`);
     $("#resource_name").text(`${post_title1}`);
@@ -94,7 +97,7 @@
     $("#from-date").text(start_time1);
     $("#to-date").text(end_time1);
     $("#bookingStatus").val(status1);
-
+    $("#date").text(date1);
     $("#update-booking").attr("data-id", id1);
   });
 

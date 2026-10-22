@@ -28,27 +28,27 @@
     <div class="request-details">
         <div class="detail-row">
             <label>Requested Resource</label>
-            <p id="resource_name">Computer Training Lab</p>
+            <p id="resource_name"></p>
         </div>
         <div class="detail-row">
             <label>Requester Name</label>
-            <p id="requester_name">Priya Patel</p>
+            <p id="requester_name"></p>
         </div>
         <div class="detail-row">
             <label>Requester Email</label>
-            <p id="email">priya@example.com</p>
+            <p id="email"></p>
+        </div>
+        <div class="detail-row">
+            <label>Date</label>
+            <p id="date"></p>
         </div>
         <div class="detail-row">
             <label>From</label>
-            <p id="from-date">20 Oct 2026, 10:00 AM</p>
+            <p id="from-date"></p>
         </div>
         <div class="detail-row">
             <label>To</label>
-            <p id="to-date">20 Oct 2026, 12:00 PM</p>
-        </div>
-        <div class="detail-row">
-            <label>Created At</label>
-            <p id="created-at">18 Oct 2026, 04:35 PM</p>
+            <p id="to-date"></p>
         </div>
         <div class="detail-row">
             <label>Status</label>

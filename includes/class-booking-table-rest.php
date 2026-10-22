@@ -129,10 +129,10 @@ class Booking_Table_Rest
 
         $query = $wpdb->prepare(
             "SELECT *
-         FROM {$table_name}
-         WHERE DATE(start_time) = %s
-         AND resource_id = %d
-         AND status = %s",
+                        FROM {$table_name}
+                        WHERE DATE(start_time) = %s
+                        AND resource_id = %d
+                        AND status = %s",
             $date,
             $resource_id,
             'confirmed'
@@ -143,21 +143,20 @@ class Booking_Table_Rest
         $data = array();
 
         foreach ($results as $row) {
+            $start = $row->start_time;
+            $end   = $row->end_time;
 
-            $start = explode(' ', $row->start_time);
-            $end = explode(' ', $row->end_time);
-
+            $start_time = date("h:i a", strtotime($start));
+            $end_time   = date("h:i a", strtotime($end));
+            
             $data[] = array(
                 'id'              => $row->id,
                 'resource_id'     => $row->resource_id,
                 'requester_name'  => $row->requester_name,
                 'requester_email' => $row->requester_email,
-
-                'start_date'      => $start[0],
-                'start_time'      => $start[1],
-
-                'end_date'        => $end[0],
-                'end_time'        => $end[1],
+                'start_time'      => $start_time,
+                'end_time'        => $end_time,
+                'date'            => $row->date
             );
         }
 
@@ -182,6 +181,7 @@ class Booking_Table_Rest
                 'resource_id'     => $row->resource_id,
                 'requester_name'  => $row->requester_name,
                 'requester_email' => $row->requester_email,
+                'date'            => $row->date,
                 'start_time'      => $row->start_time,
                 'end_time'        => $row->end_time,
                 'status'          => $row->status,
@@ -202,6 +202,7 @@ class Booking_Table_Rest
         $start_time     = sanitize_text_field($request->get_param('start_time'));
         $end_time       = sanitize_text_field($request->get_param('end_time'));
         $email          = sanitize_email($request->get_param('requester_email'));
+        $date           = sanitize_text_field($request->get_param('date'));
 
         $data = array(
             'resource_id'     => $resource_id,
@@ -210,10 +211,11 @@ class Booking_Table_Rest
             'start_time'      => $start_time,
             'end_time'        => $end_time,
             'status'          => "pending",
-            'created_at'      => current_time('mysql')
+            'created_at'      => current_time('mysql'),
+            'date'            => $date
         );
 
-        $format = array('%d', '%s', '%s', '%s', '%s', '%s', '%s');
+        $format = array('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s');
 
         $inserted = $wpdb->insert($table_name, $data, $format);
 
@@ -227,6 +229,24 @@ class Booking_Table_Rest
             );
         }
 
+        $med = "";
+
+        if ($start_time > "12:00:00") {
+            $med = "PM";
+            $start_time .= " $med";
+        } else {
+            $med = "AM";
+            $start_time .= " $med";
+        }
+
+        if ($end_time > "12:00:00") {
+            $med = "PM";
+            $end_time .= " $med";
+        } else {
+            $med = "AM";
+            $end_time .= " $med";
+        }
+
         $admin_email = get_option('admin_email');
 
         $subject = 'New Booking Request Received';
@@ -238,6 +258,7 @@ class Booking_Table_Rest
         $message .= "Resource ID: " . $resource_id . "\n";
         $message .= "Start Time: " . $start_time . "\n";
         $message .= "End Time: " . $end_time . "\n";
+        $message .= "Date: " . $date . "\n";
         $message .= "Status: Pending\n\n";
         $message .= "Please log in to WordPress to review this request.";
 
@@ -272,6 +293,7 @@ class Booking_Table_Rest
             'resource_id'     => $result->resource_id,
             'requester_name'  => $result->requester_name,
             'requester_email' => $result->requester_email,
+            'date'            => $result->date,
             'start_time'      => $result->start_time,
             'end_time'        => $result->end_time,
             'status'          => $result->status
@@ -459,6 +481,8 @@ class Booking_Table_Rest
                         b.start_time,
                         b.end_time,
                         b.status,
+                        b.date,
+                        b.created_at,
                         b.requester_email
                     FROM $table_name AS b
                     LEFT JOIN wp_posts AS p
@@ -471,13 +495,15 @@ class Booking_Table_Rest
 
         foreach ($results as $row) {
             $data[] = array(
-                'id'             => $row->id,
-                'post_title'     => $row->post_title,
-                'requester_name' => $row->requester_name,
+                'id'              => $row->id,
+                'post_title'      => $row->post_title,
+                'requester_name'  => $row->requester_name,
                 'requester_email' => $row->requester_email,
-                'start_time'     => $row->start_time,
-                'end_time'       => $row->end_time,
-                'status'         => $row->status
+                'date'            => $row->date,
+                'start_time'      => $row->start_time,
+                'end_time'        => $row->end_time,
+                'status'          => $row->status,
+                'created_at'      => $row->created_at
             );
         }
         return new WP_REST_Response($data, 200);

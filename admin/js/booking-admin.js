@@ -1,37 +1,132 @@
 (function ($) {
   "use strict";
-  
+
+  let all_data = [];
+  let id_data = [];
+
   function loadResourceList() {
     $.get(
       "http://localhost/wordpress/wp-json/myapi/v1/resources",
       function (data) {
         let i = 0;
         let rowsHtml = "";
-
-        while (i < data.length) {
-          let title = data[i].title;
-          let capacity = data[i]._capacity;
+        all_data = data;
+        while (i < all_data.length) {
+          let id = all_data[i].id;
+          let title = all_data[i].title;
+          let content = all_data[i].content;
+          let capacity = all_data[i]._capacity;
+          let thumbnail = all_data[i].thumbnail;
 
           rowsHtml += `<tr>
-                        <td>${data[i].id}</td>
-                        <td>${title}</td>
-                        <td>${capacity}</td>
-                        <td>
-                            <button class="view-resource-link" data-id="${data[i].id}">
-                              view
-                            </button>
-                        </td>
-                        <td>
-                            <button class="update-resource-link" data-id="${data[i].id}">
-                              update
-                            </button>
-                        </td>
-                        <td>
-                            <button class="delete-resource" data-id="${data[i].id}">
-                              Delete
-                            </button>
-                        </td>
-                      </tr>`;
+                    <td>${id}</td>
+                    <td>${title}</td>
+                    <td>${capacity}</td>
+                    <td>
+                        <button
+                            class="view-resource-link"
+                            data-id="${id}">
+                            view
+                        </button>
+                        <div
+                            id="resource-modal-${id}"
+                            class="booking-modal-overlay"
+                            style="display:none;">
+                            <div class="booking-modal-content">
+                                <span class="booking-modal-close">×</span>
+                                <h2>
+                                    ${title}
+                                </h2>
+                                <div>
+                                    ${content}
+                                </div>
+                                <p>
+                                    <strong>Capacity:</strong>
+                                    ${capacity}
+                                </p>
+                                <?php if (!empty(${thumbnail})) { ?>
+                                    <img
+                                        src="${thumbnail}"
+                                        alt="">
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <button
+                            class="update-resource-link"
+                            data-id="${id}">
+                            update
+                        </button>
+                    </td>
+                    <div id="resource-edit-modal-${id}" class="booking-modal-overlay" style="display: none;">
+                        <div class="booking-modal-content">
+                            <h2 style="margin-top: 0;">Edit Resource</h2>
+
+                            <form id="resource-edit-form" enctype="multipart/form-data">
+                                <input type="hidden"
+                                    id="edit-resource-id"
+                                    value="${id}">
+                                <p>
+                                    <label for="edit-resource-title"><strong>Title:</strong></label><br>
+
+                                    <?php if (!empty(${thumbnail})) { ?>
+                                        <input
+                                            type="text"
+                                            id="edit-resource-title"
+                                            class="regular-text"
+                                            value="${title}"
+                                            style="width: 100%; padding: 6px; margin-top: 5px;">
+                                    <?php } ?>
+                                <p style="color:red" id="titleerr"></p>
+                                </p>
+                                <p>
+                                    <label for="edit-resource-content"><strong>Content:</strong></label><br>
+                                    <textarea
+                                        id="edit-resource-content"
+                                        rows="4"
+                                        style="width: 100%; padding: 6px; margin-top: 5px;"><?php echo esc_textarea(${content}); ?></textarea>
+                                <p style="color:red" id="contenterr"></p>
+                                </p>
+
+                                <p>
+                                    <label><strong>Featured Image:</strong></label><br>
+                                <div id="edit-image-preview" style="margin: 8px 0;"></div>
+                                <input
+                                    type="hidden"
+                                    id="old-image-${id}"
+                                    value="${thumbnail}">
+                                <img
+                                    id="profileDisplay-${id}"
+                                    src="${thumbnail}"
+                                    width="200">
+                                <input type="file" id="edit-resource-file" accept="image/*" style="margin-top: 5px;">
+                                </p>
+                                <p>
+                                    <label for="edit-resource-capacity"><strong>Capacity:</strong></label><br>
+                                    <input
+                                        type="number"
+                                        id="edit-resource-capacity"
+                                        class="regular-text"
+                                        style="width: 100%; padding: 6px; margin-top: 5px;"
+                                        value="${capacity}">
+                                <p style="color:red" id="capacityerr"></p>
+                                </p>
+
+                                <p style="margin-top: 20px; text-align: right;">
+                                    <button type="submit" class="button button-primary work">Save Changes</button>
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                    <td>
+                        <button
+                            class="delete-resource"
+                            data-id="${id}">
+                            Delete
+                        </button>
+                    </td>
+                </tr>`;
           i++;
         }
         $("#mycontent").html(rowsHtml);
@@ -39,35 +134,23 @@
     );
   }
 
-  loadResourceList();
+  // loadResourceList();
 
-  $(document).on("click", ".view-resource-link", function (e) {
-    e.preventDefault();
+  // View resources by id
+  $(document).on("click", ".view-resource-link", function () {
     const resourceId = $(this).data("id");
 
-    $.get(
-      `http://localhost/wordpress/wp-json/myapi/v1/resource/${resourceId}`,
-      function (resource) {
-        let title = resource[0].title;
-        let content = resource[0].content;
-        let capacity = resource[0]._capacity;
-        let thumbnail = resource[0].thumbnail;
+    $(`#resource-modal-${resourceId}`).fadeIn(200);
 
-        $("#modal-title").text(title);
-        $("#modal-content").html(content);
-        $("#modal-capacity").text(capacity);
+    $(document).on("click", ".booking-modal-close", function () {
+      $(`#resource-modal-${resourceId}`).fadeOut(200);
+    });
 
-        if (thumbnail) {
-          $("#modal-image-container").html(
-            `<img src="${thumbnail}" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;" />`,
-          );
-        } else {
-          $("#modal-image-container").html("");
-        }
-
-        $("#resource-modal").fadeIn(200);
-      },
-    );
+    $(window).on("click", function (e) {
+      if ($(e.target).is(`#resource-modal-${resourceId}`)) {
+        $(`#resource-modal-${resourceId}`).fadeOut(200);
+      }
+    });
   });
 
   $(document).on("click", ".delete-resource", function (e) {
@@ -102,10 +185,10 @@
 
     let formData = new FormData();
 
-    let title = document.getElementById("resource_title").value ?? '';
-    let content = document.getElementById("resource_content").value ?? '';
+    let title = document.getElementById("resource_title").value ?? "";
+    let content = document.getElementById("resource_content").value ?? "";
     let capacity = document.getElementById("resource_capacity").value ?? 1;
-    let file = document.getElementById("file").value ?? '';
+    let file = document.getElementById("file").value ?? "";
 
     if (title.trim() === "") {
       $("#titleerr").text("* title is required");
@@ -161,7 +244,7 @@
         $("#titleerr").text("");
         $("#contenterr").text("");
         $("#fileerr").text("");
-        $("#profileDisplay").attr("src","");
+        $("#profileDisplay").attr("src", "");
       },
       error: function (xhr) {
         console.error("Add failed:", xhr.responseText);
@@ -170,45 +253,25 @@
     });
   });
 
-  $(document).on("click", ".booking-modal-close", function () {
-    $("#resource-modal").fadeOut(200);
-  });
-
-  $(document).on("click", ".update-resource-link", function (e) {
-    e.preventDefault();
+  $(document).on("click", ".update-resource-link", function () {
     const resourceId = $(this).data("id");
 
-    $.get(
-      `http://localhost/wordpress/wp-json/myapi/v1/resource/${resourceId}`,
-      function (resource) {
-        let title = resource[0].title;
-        let content = resource[0].content;
-        let capacity = resource[0]._capacity;
-        let thumbnail = resource[0].thumbnail;
+    $(`#resource-edit-modal-${resourceId}`).fadeIn(200);
 
-        $("#edit-resource-id").val(resourceId);
-        $("#edit-resource-title").val(title);
-        $("#edit-resource-content").val(content);
-        $("#edit-resource-capacity").val(capacity);
+    $(document).on("click", ".booking-modal-close", function () {
+      $(`resource-edit-modal-${resourceId}`).fadeOut(200);
+      $("#profileDisplay").css({
+        display: "block",
+      });
+    });
 
-
-        if (thumbnail) {
-          $("#edit-image-preview").html(`
-                <p style="font-size: 12px; color: #666; margin: 0 0 5px 0;">Current Image:</p>
-                <img src="${thumbnail}" id="curr_img" style="max-width: 200px; height: 160px; border-radius: 4px;" />
-            `);
-        } else {
-          $("#edit-image-preview").html(
-            "<p style='font-size: 12px; color: #666;'>No image uploaded</p>",
-          );
-        }
-
-        $("#edit-resource-file").val("");
-
-        $("#resource-edit-modal").fadeIn(200);
-        console.log(resource);
-      },
-    );
+    $(window).on("click", function (e) {
+      if ($(e.target).is(`#resource-edit-modal-${resourceId}`)) {
+        let old_image = $(`#old-image-${resourceId}`).val();
+        $(`#profileDisplay-${resourceId}`).attr("src", old_image);
+        $(`#resource-edit-modal-${resourceId}`).fadeOut(200);
+      }
+    });
 
     $(document).on("submit", "#resource-edit-form", function (e) {
       e.preventDefault();
@@ -219,7 +282,6 @@
       formData.append("title", $("#edit-resource-title").val());
       formData.append("content", $("#edit-resource-content").val());
       formData.append("_capacity", $("#edit-resource-capacity").val());
-      
 
       let fileInput = $("#edit-resource-file")[0].files[0];
       if (fileInput) {
@@ -244,6 +306,7 @@
         success: function (response) {
           alert("Resource updated successfully!");
           $("#profileDisplay").attr("src", "");
+          $(`old-image-${resourceId}`).attr("value",fileInput);
           $("#resource-edit-modal").fadeOut(200);
           loadResourceList();
         },
@@ -254,8 +317,6 @@
       });
     });
   });
-
-  // Image preview code
 
   $(document).on("change", "#file", function (e) {
     if (e.target.files && e.target.files[0]) {
@@ -271,32 +332,16 @@
   });
 
   $(document).on("change", "#edit-resource-file", function (e) {
+    let resourceId = $("#edit-resource-id").val();
+
     if (e.target.files && e.target.files[0]) {
       let reader = new FileReader();
       reader.onload = function (event) {
-        let img = document.getElementById("curr_img");
-        let upimg = document.getElementById("profileDisplay");
+        let upimg = document.getElementById(`profileDisplay-${resourceId}`);
         upimg.src = event.target.result;
         upimg.style.display = "block";
-        img.style.display = "none";
       };
       reader.readAsDataURL(e.target.files[0]);
     }
-    console.log("I am triggered");
   });
-
-  $(window).on("click", function (e) {
-    if ($(e.target).is("#resource-edit-modal")) {
-      $("#resource-edit-modal").fadeOut(200);
-      $("#profileDisplay").attr("src", "");
-    }
-  });
-
-  $(window).on("click", function (e) {
-    if ($(e.target).is("#resource-modal")) {
-      $("#resource-modal").fadeOut(200);
-    }
-
-  });
-  
 })(jQuery);
