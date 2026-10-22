@@ -2,8 +2,7 @@
   "use strict";
 
   $(document).ready(function () {
-    $(document).on("click", ".view-resource-link", function (e) {
-      e.preventDefault();
+    $(document).on("click", ".view-resource-link", function () {
 
       let allBookings = [];
       let blackout = [];
@@ -37,25 +36,45 @@
       // let format = date + " " + time + ":00";
       // console.log(format);
 
-      $("#start_time, #end_time").on("change", function () {
-        let start_time = $("#start_time").val();
-        let end_time = $("#end_time").val();
-
-        let parts = start_time.split("T");
-
-        let date = parts[0];
-
-        // To fetch specific date
-        let t = new Date(date);
-        let dayName = t.toLocaleDateString("en-US", {
-          weekday: "long",
-        });
-
+      $(document).on("change", "#date", function () {
+        let date = $("#date").val();
+        let statusBox = $("#ajax-slot-status1");
+        let submitbtn = $("#btn1");
+        // console.log(blackout);
         $.get(
           `http://localhost/wordpress/wp-json/myapi/v1/booking/booked/${resourceId}/${date}`,
           function (data) {
             let bookedData = data;
             let html = "";
+
+            let isBlackOut = false;
+            // console.log(blackout);
+            blackout.forEach(function (b) {
+              if (date == b.exdate) {
+                isBlackOut = true;
+              }
+            });
+
+            if (isBlackOut) {
+              statusBox.text("We are closed durring that day").css({
+                display: "block",
+                background: "#ffebee",
+                color: "#c62828",
+                border: "1px solid #ef9a9a",
+              });
+              $("#time-occupied").text("");
+              submitbtn.css({
+                display: "none",
+              });
+              return;
+            } else {
+              statusBox.css({
+                display: "none",
+              });
+              submitbtn.css({
+                display: "block",
+              });
+            }
 
             if (bookedData.length === 0) {
               html = "";
@@ -64,38 +83,8 @@
                 let start_time = booking.start_time;
                 let end_time = booking.end_time;
 
-                let end_time_arr = end_time.split(":");
-                let start_time_arr = start_time.split(":");
-
-                let sHours = parseInt(start_time_arr[0], 10);
-                let sMinutes = start_time_arr[1];
-
-                let eHours = parseInt(end_time_arr[0], 10);
-                let eMinutes = end_time_arr[1];
-
-                let period = sHours >= 12 ? "PM" : "AM";
-                let period1 = eHours >= 12 ? "PM" : "AM";
-
-                if (sHours > 12) {
-                  sHours = sHours - 12;
-                }
-
-                if (eHours > 12) {
-                  eHours = eHours - 12;
-                }
-
-                if (sHours == 0) {
-                  sHours = 12;
-                }
-
-                if (eHours == 0) {
-                  eHours = 12;
-                }
-
-                let updated_start_time = `${sHours}:${sMinutes} ${period}`;
-                let updated_end_time = `${eHours}:${eMinutes}:${period1}`;
-
-                //console.log(updated_start_time);
+                let updated_start_time = `${start_time}`;
+                let updated_end_time = `${end_time}`;
 
                 html += `
                     <div class="occupied-slot">
@@ -105,64 +94,59 @@
                 `;
               });
             }
-
             $("#time-occupied").html(html);
           },
         );
+      });
 
-        let newStart = new Date(start_time).getTime();
-        let newEnd = new Date(end_time).getTime();
-
-        let submitbtn = document.getElementById("btn1");
-
+      $("#start_time, #end_time").on("change", function () {
         let statusBox = $("#ajax-slot-status1");
+        let submitbtn = $("#btn1");
 
-        if (newEnd <= newStart) {
-          statusBox
-            .text("End time must be later than start time.")
-            .css({ background: "#ffebee", color: "#c62828" });
-          submitbtn.style.display = "none";
-          return;
-        } else {
-          statusBox.text("");
-          submitbtn.removeAttribute("style");
-        }
+        let date = $("#date").val();
+        let start_time = $("#start_time").val();
+        let end_time = $("#end_time").val();
 
-        let isOverlapping = false;
-        let isBlackOut = false;
-        // console.log(blackout);
 
-        blackout.forEach(function (b) {
-          if (date == b.exdate) {
-            isBlackOut = true;
+        $("#end-time").css("display", "block");
+
+
+        if (end_time !== "") {
+
+          if (end_time <= start_time) {
+            statusBox.text("End time must be later than start time.").css({
+              display: "block",
+              background: "#ffebee",
+              color: "#c62828",
+            });
+
+            submitbtn.css({
+              display: "none",
+            });
+            return;
+          } else {
+            statusBox.css({
+              display: "none",
+            });
+            submitbtn.css({
+              display: "block",
+            });
           }
-        });
-
-        if (isBlackOut == true) {
-          statusBox.text("We are closed durring that day").css({
-            display: "block",
-            background: "#ffebee",
-            color: "#c62828",
-            border: "1px solid #ef9a9a",
-          });
-          submitbtn.style.display = "none";
-          return;
-        } else {
-          statusBox.css({
-            display: "none",
-          });
-          submitbtn.removeAttribute("style");
         }
+
+        // Check for overlapping bookings
+        let isOverlapping = false;
 
         allBookings.forEach(function (booking) {
           if (
-            booking.resource_id == resourceId &&
-            booking.status == "confirmed"
+            booking.date == date &&
+            booking.status == "confirmed" &&
+            booking.resource_id == resourceId
           ) {
-            let bookedStart = new Date(booking.start_time).getTime();
-            let bookedEnd = new Date(booking.end_time).getTime();
+            let booked_start = booking.start_time;
+            let booked_end = booking.end_time;
 
-            if (newStart < bookedEnd && newEnd > bookedStart) {
+            if (start_time < booked_end && end_time > booked_start) {
               isOverlapping = true;
             }
           }
@@ -179,15 +163,20 @@
               color: "#c62828",
               border: "1px solid #ef9a9a",
             });
-          submitbtn.style.display = "none";
+          submitbtn.css({
+            display: "none",
+          });
           return;
         } else {
           statusBox.css({
             display: "none",
           });
-          submitbtn.removeAttribute("style");
+          submitbtn.css({
+            display: "block",
+          });
         }
       });
     });
-  });
+
+    });
 })(jQuery);

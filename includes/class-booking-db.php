@@ -12,6 +12,7 @@ class Booking_Db
 
         $table_name  = $wpdb->prefix . 'bookings';
         $table_name1 = $wpdb->prefix . 'blackout';
+        $table_name2 = $wpdb->prefix . 'business_hours';
 
         $sql = "CREATE TABLE $table_name (
             id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -32,9 +33,18 @@ class Booking_Db
             PRIMARY KEY  (blackout_id)
         ) $charset_collate;";
 
+        $sql2 = "CREATE TABLE $table_name2 (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                day_of_week VARCHAR(10) NOT NULL,
+                open_time TIME DEFAULT '09:00:00',
+                close_time TIME DEFAULT '17:00:00',
+                is_closed TINYINT(1) DEFAULT 0)$charset_collate;";
+
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        
         dbDelta($sql);
         dbDelta($sql1);
+        dbDelta($sql2);
     }
 
     public static function create_table_blackout()

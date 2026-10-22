@@ -78,12 +78,12 @@ class Booking_Admin
 		 */
 
 		wp_enqueue_style(
-            $this->plugin_name . '-admin-style',
-            plugin_dir_url(__FILE__) . 'css/booking-admin.css',
-            array(),
-            $this->version,
-            'all'
-        );
+			$this->plugin_name . '-admin-style',
+			plugin_dir_url(__FILE__) . 'css/booking-admin.css',
+			array(),
+			$this->version,
+			'all'
+		);
 	}
 
 	/**
@@ -122,6 +122,14 @@ class Booking_Admin
 		wp_enqueue_script(
 			"$handle-blackout-booking",
 			plugin_dir_url(__FILE__) . 'js/blackout-admin.js',
+			array('jquery'),
+			$this->version,
+			false
+		);
+
+		wp_enqueue_script(
+			"$handle-buisness-booking",
+			plugin_dir_url(__FILE__) . 'js/buiseness-admin.js',
 			array('jquery'),
 			$this->version,
 			false
@@ -203,9 +211,8 @@ class Booking_Admin
 
 	public static function display_buisness_settings()
 	{
-		require_once plugin_dir_path(__FILE__). '/partials/display_buisness.php';
+		require_once plugin_dir_path(__FILE__) . '/partials/display_buisness.php';
 	}
 }
 
 add_action('admin_menu', [Booking_Admin::class, 'add_booking_menu']);
-

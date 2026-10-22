@@ -10,6 +10,7 @@ return array(
     'Aj\\Booking\\Frontend\\Resource_List' => $baseDir . '/includes/shortcodes.php',
     'Aj\\Booking\\Table\\Blackout\\Booking_Blackout_Rest' => $baseDir . '/includes/class-booking-blackout-rest.php',
     'Aj\\Booking\\Table\\Booking_Table_Rest' => $baseDir . '/includes/class-booking-table-rest.php',
+    'Aj\\Booking\\Table\\Buisness\\Booking_Buisness_Rest' => $baseDir . '/includes/class-booking-buiseness-rest.php',
     'Aj\\Post\\Booking_Post' => $baseDir . '/includes/class-booking-cpt.php',
     'Aj\\Table\\Booking_Db' => $baseDir . '/includes/class-booking-db.php',
     'Booking' => $baseDir . '/includes/class-booking.php',

@@ -143,12 +143,14 @@
       let requester_email = $("#requester_email").val() ?? "";
       let start_time = $("#start_time").val() ?? "";
       let end_time = $("#end_time").val() ?? "";
+      let date = $("#date").val() ?? "";
 
       formData.append("resource_id", resource_id);
       formData.append("requester_name", requester_name);
       formData.append("requester_email", requester_email);
       formData.append("start_time", start_time);
       formData.append("end_time", end_time);
+      formData.append("date", date);
 
       const dataObject = Object.fromEntries(formData.entries());
       const jsonString = JSON.stringify(dataObject);
