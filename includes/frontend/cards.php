@@ -72,21 +72,18 @@
                     Date
                 </label>
 
-                <!-- <input
-                    type="datetime-local"
-                    id="start_time"
-                    name="start_time"
-                    required> -->
                 <input type="date" name="" id="date">
+                <br><br>
+                <p id="buisness-hours"></p>
                 <br><br>
                 <label>Start Time</label>
                 <input type="time" name="" id="start_time">
                 <br><br>
                 <div id="end-time" style="display:none;">
                     <label>End Time</label>
-                    <input type="time" 
-                    name="" 
-                    id="end_time">
+                    <input type="time"
+                        name=""
+                        id="end_time">
                 </div>
                 <br><br>
             </div>

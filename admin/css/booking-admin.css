@@ -679,3 +679,49 @@ img {
         padding: 9px;
     }
 }
+
+
+.booking-modal-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 9999;
+}
+
+.booking-modal-content {
+    background: white;
+    width: 400px;
+    padding: 25px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.booking-modal-close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.booking-field {
+    margin-bottom: 15px;
+}
+
+.booking-field label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.booking-field input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}

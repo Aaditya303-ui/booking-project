@@ -129,10 +129,10 @@ class Booking_Table_Rest
 
         $query = $wpdb->prepare(
             "SELECT *
-                        FROM {$table_name}
-                        WHERE DATE(start_time) = %s
-                        AND resource_id = %d
-                        AND status = %s",
+                FROM {$table_name}
+                WHERE DATE(date) = %s
+                AND resource_id = %d
+                AND status = %s",
             $date,
             $resource_id,
             'confirmed'

@@ -87,7 +87,8 @@ foreach ($posts as $post) {
                             update
                         </button>
                     </td>
-                    <div id="resource-edit-modal-<?php echo $data[$i]['id'] ?>" class="booking-modal-overlay" style="display: none;">
+                    <div id="resource-edit-modal-<?php echo $data[$i]['id'] ?>" 
+                    class="booking-modal-overlay" style="display: none;">
                         <div class="booking-modal-content">
                             <h2 style="margin-top: 0;">Edit Resource</h2>
 
