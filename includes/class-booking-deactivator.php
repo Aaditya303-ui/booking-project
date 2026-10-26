@@ -20,7 +20,8 @@
  * @subpackage Booking/includes
  * @author     aj <test@gmail.com>
  */
-class Booking_Deactivator {
+class Booking_Deactivator
+{
 
 	/**
 	 * Short Description. (use period)
@@ -29,8 +30,11 @@ class Booking_Deactivator {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function deactivate() {
-
+	public static function deactivate()
+	{
+		$timestamp = wp_next_scheduled( 'booking_five_sec_test_event' );
+        if ( $timestamp ) {
+            wp_unschedule_event( $timestamp, 'booking_five_sec_test_event' );
+        }
 	}
-
 }

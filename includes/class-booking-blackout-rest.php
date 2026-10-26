@@ -45,30 +45,96 @@ class Booking_Blackout_Rest
         );
     }
 
-    public function get_blackout_dates()
+    public function get_blackout_dates(WP_REST_Request $request)
     {
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'blackout';
 
-        $query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE 1=1");
+        $query = "SELECT * FROM {$table_name} as b WHERE 1=1";
+        $params = [];
 
-        $results = $wpdb->get_results($query);
+        $search = sanitize_text_field(
+            $request->get_param('search') ?? ''
+        );
+
+        if ($search !== '') {
+            $query   .= " AND b.reason LIKE %s";
+            $params[] = '%' . $wpdb->esc_like($search) . '%';
+        }
+
+        $date = sanitize_text_field(
+            $request->get_param('blackout_date') ?? ''
+        );
+
+        if ($date !== '') {
+            $query   .= " AND b.blackout_date LIKE %s";
+            $params[] = '%' . $wpdb->esc_like($date) . '%';
+        }
+
+        $sort_by = sanitize_text_field(
+            $request->get_param('sort_by') ?? ''
+        );
+
+        $order = [
+            'new' => 'b.blackout_id DESC',
+            'old' => 'b.blackout_id ASC',
+            'a-z' => 'b.reason ASC',
+            'z-a' => 'b.reason DESC'
+        ];
+
+        if ($sort_by !== "") {
+            $query .= " ORDER BY " . $order[$sort_by];
+            $params[] = esc_html($sort_by);
+        }
+
+        $month = strtolower(
+            sanitize_text_field($request->get_param('month') ?? '')
+        );
+
+        $months = [
+            'january'   => 1,
+            'february'  => 2,
+            'march'     => 3,
+            'april'     => 4,
+            'may'       => 5,
+            'june'      => 6,
+            'july'      => 7,
+            'august'    => 8,
+            'september' => 9,
+            'october'   => 10,
+            'november'  => 11,
+            'december'  => 12,
+        ];
+
+        if (isset($months[$month])) {
+            $query .= " AND MONTH(b.blackout_date) = %d";
+            $params[] = $months[$month];
+        }
+
+        $sql = !empty($params)
+            ? $wpdb->prepare($query, ...$params)
+            : $query;
+
+        $results = $wpdb->get_results($sql);
 
         $data = array();
 
         foreach ($results as $row) {
-            $arr  = explode(" ", $row->blackout_date);
-            $date = $arr[0];
-            $new_date = new DateTime($date);
+            $arr         = explode(" ", $row->blackout_date);
+            $date        = $arr[0];
+            $new_date    = new DateTime($date);
             $date_format = $new_date->format('l, F j, Y');
+            $date_exp    = explode("-", $date);
+            $month       = $date_exp[1];
 
             $data[] = array(
                 'blackout_id'       => $row->blackout_id,
                 'blackout_date'     => $row->blackout_date,
                 'reason'            => $row->reason,
                 'date'              => $date_format,
-                'exdate'            => $date
+                'exdate'            => $date,
+                'month'             => $month
             );
         }
         return new WP_REST_Response($data, 200);

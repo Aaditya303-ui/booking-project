@@ -112,14 +112,6 @@ class Booking_Admin
 		);
 
 		wp_enqueue_script(
-			"$handle-request-booking",
-			plugin_dir_url(__FILE__) . 'js/request-admin.js',
-			array('jquery'),
-			$this->version,
-			false
-		);
-
-		wp_enqueue_script(
 			"$handle-blackout-booking",
 			plugin_dir_url(__FILE__) . 'js/blackout-admin.js',
 			array('jquery'),
@@ -135,8 +127,25 @@ class Booking_Admin
 			false
 		);
 
+		wp_enqueue_script(
+			"$handle-request-update-valid-booking",
+			plugin_dir_url(__FILE__) . 'js/request/request-update-valid.js',
+			array('jquery'),
+			$this->version,
+			false
+		);
+
+		wp_enqueue_script(
+			"$handle-request-booking",
+			plugin_dir_url(__FILE__) . 'js/request/request-admin.js',
+			array('jquery', "$handle-request-update-valid-booking"),
+			$this->version,
+			false
+		);
+
 		wp_localize_script($handle, 'bookingApiSettings', array(
-			'nonce' => wp_create_nonce('wp_rest')
+			'nonce' => wp_create_nonce('wp_rest'),
+			'restUrl' => rest_url('myapi/v1/')
 		));
 	}
 

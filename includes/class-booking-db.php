@@ -19,8 +19,8 @@ class Booking_Db
             resource_id BIGINT(20) UNSIGNED,
             requester_name VARCHAR(255),
             requester_email VARCHAR(255),
-            start_time DATETIME,
-            end_time DATETIME,
+            start_time TIME,
+            end_time TIME,
             status ENUM('pending','confirmed','expired','cancelled'),
             created_at DATETIME,
             PRIMARY KEY  (id)
@@ -34,14 +34,16 @@ class Booking_Db
         ) $charset_collate;";
 
         $sql2 = "CREATE TABLE $table_name2 (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                day_of_week VARCHAR(10) NOT NULL,
-                open_time TIME DEFAULT '09:00:00',
-                close_time TIME DEFAULT '17:00:00',
-                is_closed TINYINT(1) DEFAULT 0)$charset_collate;";
+            id INT(11) NOT NULL AUTO_INCREMENT,
+            day_of_week VARCHAR(10) NOT NULL,
+            open_time TIME DEFAULT '09:00:00',
+            close_time TIME DEFAULT '17:00:00',
+            is_closed TINYINT(1) DEFAULT 0,
+            PRIMARY KEY  (id)
+        ) $charset_collate;";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        
+
         dbDelta($sql);
         dbDelta($sql1);
         dbDelta($sql2);

@@ -21,7 +21,8 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
  * @subpackage Booking/includes
  * @author     aj <test@gmail.com>
  */
-class Booking_Activator {
+class Booking_Activator
+{
 
 	/**
 	 * Short Description. (use period)
@@ -30,8 +31,10 @@ class Booking_Activator {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function activate() {
+	public static function activate()
+	{
 		\Aj\Table\Booking_Db::create_table();
-	}
 
+		d
+	}
 }

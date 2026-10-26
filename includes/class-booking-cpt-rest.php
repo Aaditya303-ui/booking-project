@@ -106,7 +106,80 @@ class Booking_CPT_Rest
                 'permission_callback' => array($this, 'permission_call'),
             )
         );
+
+        register_rest_route('myapi/v1', '/resourcess/categorise/', array(
+            'methods'             => 'GET',
+            'callback'            => array($this, 'get_cpt_data_categorised'),
+            'permission_callback' => '__return_true',
+        ));
     }
+
+
+    public function get_cpt_data_categorised(WP_REST_Request $request)
+    {
+        $search = sanitize_text_field(
+            $request->get_param('search') ?? ''
+        );
+
+        $sort_by = sanitize_key(
+            $request->get_param('sortBy') ?? 'a-z'
+        );
+
+
+        $args = array(
+            'post_type'      => 'resource',
+            'post_status'    => 'publish',
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+        );
+
+        $order = [
+            'a-z' => [
+                'orderby' => 'title',
+                'order'   => 'ASC'
+            ],
+            'z-a' => [
+                'orderby' => 'title',
+                'order'   => 'DESC'
+            ],
+            'new' => [
+                'orderby' => 'date',
+                'order'   => 'DESC'
+            ],
+            'old' => [
+                'orderby' => 'date',
+                'order'   => 'ASC'
+            ]
+        ];
+
+        if ($search !== "") {
+            $args['s'] = esc_html($search);
+        }
+
+        if (isset($order[$sort_by])) {
+            $args['orderby'] = $order[$sort_by]['orderby'];
+            $args['order']   = $order[$sort_by]['order'];
+        }
+
+        $posts = get_posts($args);
+
+        $data = array();
+
+        foreach ($posts as $post) {
+            $thumbnail_url = get_the_post_thumbnail_url($post->ID, 'full');
+            $capacity      = get_post_meta($post->ID, '_capacity', true);
+            $data[] = array(
+                'id'         => $post->ID,
+                'title'      => $post->post_title,
+                'slug'       => $post->post_name,
+                'thumbnail'  => $thumbnail_url,
+                '_capacity'  => $capacity,
+                'content'    => $post->post_content
+            );
+        }
+        return new WP_REST_Response($data, 200);
+    }
+
 
     public function get_cpt_data()
     {
@@ -132,7 +205,7 @@ class Booking_CPT_Rest
                 'content'    => $post->post_content
             );
         }
-        return new \WP_REST_Response($data, 200);
+        return new WP_REST_Response($data, 200);
     }
 
     public function get_cpt_by_id(WP_REST_Request $request)
@@ -202,7 +275,7 @@ class Booking_CPT_Rest
             $capacity
         );
 
-        if (! isset($_FILES['file']) ||empty($_FILES['file']['name']) ) {
+        if (! isset($_FILES['file']) || empty($_FILES['file']['name'])) {
             return new WP_Error(
                 'file_required',
                 'Please upload a resource image.',

@@ -2,18 +2,15 @@
   "use strict";
 
   function loadblackoutData() {
-    $.get(
-      "http://localhost/wordpress/wp-json/myapi/v1/blackout",
-      function (data) {
-        let i = 0;
-        let rowsHtml = "";
-        console.log(data);
-        while (i < data.length) {
-          let blackout_id = data[i]["blackout_id"];
-          let blackout_date = data[i]["date"];
-          let reason = data[i]["reason"];
+    $.get(`${bookingApiSettings.restUrl}blackout`, function (data) {
+      let i = 0;
+      let rowsHtml = "";
+      while (i < data.length) {
+        let blackout_id = data[i]["blackout_id"];
+        let blackout_date = data[i]["date"];
+        let reason = data[i]["reason"];
 
-          rowsHtml += `<tr>
+        rowsHtml += `<tr>
                               <td>${blackout_id}</td>
                               <td>${blackout_date}</td>
                               <td>${reason}</td>
@@ -23,13 +20,11 @@
                                 </button>
                               </td>
                           </tr>`;
-          i++;
-        }
-        $("#mycontent2").html(rowsHtml);
-      },
-    );
+        i++;
+      }
+      $("#mycontent2").html(rowsHtml);
+    });
   }
-  loadblackoutData();
 
   $(document).on("click", "#delete-btn", function () {
     let id = $(this).data("id");
@@ -46,7 +41,7 @@
     }).then((result) => {
       if (result.isConfirmed) {
         $.ajax({
-          url: `http://localhost/wordpress/wp-json/myapi/v1/blackout/${id}`,
+          url: `${bookingApiSettings.restUrl}blackout/${id}`,
           type: "DELETE",
 
           beforeSend: function (xhr) {
@@ -105,7 +100,7 @@
     let reason = $("#blackout_reason").val();
 
     $.ajax({
-      url: "http://localhost/wordpress/wp-json/myapi/v1/blackout",
+      url: `${bookingApiSettings.restUrl}blackout`,
       type: "POST",
       data: {
         blackout_date: date,
@@ -131,4 +126,63 @@
       },
     });
   });
+
+  $(document).on(
+    "change input",
+    "#search_reason, #select_date, #sort_by, #month",
+    function () {
+      let search = ($("#search_reason").val() ?? "").trim();
+      let blackout_date = ($("#select_date").val() ?? "").trim();
+      let sort_by = ($("#sort_by").val() ?? "").trim();
+      let month = ($("#month").val() ?? "").trim();
+
+      let newUri = `${bookingApiSettings.restUrl}blackout`;
+
+      console.log(blackout_date);
+      let params = new URLSearchParams();
+
+      if (search !== "") {
+        params.append("search", search);
+      }
+
+      if (blackout_date !== "") {
+        params.append("blackout_date", blackout_date);
+      }
+
+      if (sort_by !== "") {
+        params.append("sort_by", sort_by);
+      }
+
+      if (month !== "") {
+        params.append("month", month);
+      }
+
+      newUri += "?" + params.toString();
+
+      console.log(newUri);
+
+      $.get(`${newUri}`, function (data) {
+        let i = 0;
+        let rowsHtml = "";
+        while (i < data.length) {
+          let blackout_id = data[i]["blackout_id"];
+          let blackout_date = data[i]["date"];
+          let reason = data[i]["reason"];
+
+          rowsHtml += `<tr>
+                              <td>${blackout_id}</td>
+                              <td>${blackout_date}</td>
+                              <td>${reason}</td>
+                              <td>
+                                <button id="delete-btn" data-id=${blackout_id}>
+                                    Delete
+                                </button>
+                              </td>
+                          </tr>`;
+          i++;
+        }
+        $("#mycontent2").html(rowsHtml);
+      });
+    },
+  );
 })(jQuery);

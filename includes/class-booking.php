@@ -84,6 +84,11 @@ class Booking
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+
+		add_filter(
+			'cron_schedules',
+			[$this, 'add_five_second_interval']
+		);
 	}
 
 	/**
@@ -162,6 +167,12 @@ class Booking
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
+
+		// $this->loader->add_filter('cron_schedules', [$this, 'add_custom_cron_interval'], 10);
+		// $this->loader->add_action('booking_auto_expire_event', [$this, 'process_expired_bookings'], 10);
+
+		$this->loader->add_filter('cron_schedules', $this, 'add_five_second_interval');
+		$this->loader->add_action('booking_five_sec_test_event', $this, 'run_five_second_test');
 	}
 
 	/**
@@ -237,14 +248,23 @@ class Booking
 		$handle = $this->plugin_name;
 
 		wp_localize_script($handle, 'bookingApiSettings', array(
-			'nonce' => wp_create_nonce('wp_rest')
+			'nonce' => wp_create_nonce('wp_rest'),
+			'restUrl' => rest_url('myapi/v1/')
 		));
 	}
+
+	public function add_five_second_interval($schedules)
+	{
+		$schedules['every_five_seconds'] = [
+			'interval' => 5,
+			'display'  => __('Every Five Seconds', 'booking'),
+		];
+
+		return $schedules;
+	}
+
+	public function run_five_second_test()
+	{
+		error_log('Five-second cron event executed successfully.');
+	}
 }
-
-// function add_shortcode_fn()
-// {
-//     return '<h2>Our Booking Resources</h2>';
-// }
-
-// add_shortcode('demowork', 'add_shortcode_fn');

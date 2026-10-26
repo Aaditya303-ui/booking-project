@@ -92,3 +92,5 @@ new \Aj\Booking\Table\Booking_Table_Rest();
 new \Aj\Booking\Frontend\Resource_List();
 new \Aj\Booking\Table\Blackout\Booking_Blackout_Rest();
 new \Aj\Booking\Table\Buisness\Booking_Buisness_Rest();
+
+
