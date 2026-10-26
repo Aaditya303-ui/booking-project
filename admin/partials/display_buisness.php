@@ -54,14 +54,8 @@ foreach ($results as $row) {
 
             while ($i < count($data)) {
                 $current_day = trim(strtolower($data[$i]['day']));
-                if ($current_day === "sunday" || $current_day === "saturday") {
-                    $i++;
-                    continue;
-                }
-
                 $open_time   = strtotime($data[$i]['open_time']);
                 $u_open_time = date("H:i", $open_time);
-
                 $close_time   = strtotime($data[$i]['close_time']);
                 $u_close_time = date("H:i", $close_time);
             ?>
@@ -87,15 +81,15 @@ foreach ($results as $row) {
 
                             <h2>Select Time</h2>
 
-                            <input 
-                            type="hidden" 
-                            id="u_start_time-<?php echo $data[$i]['id']; ?>"
-                            value="<?php echo $u_open_time; ?>">
+                            <input
+                                type="hidden"
+                                id="u_start_time-<?php echo $data[$i]['id']; ?>"
+                                value="<?php echo $u_open_time; ?>">
 
-                            <input 
-                            type="hidden"
-                            id="u_close_time-<?php echo $data[$i]['id'] ?>"
-                            value="<?php echo $u_close_time; ?>">
+                            <input
+                                type="hidden"
+                                id="u_close_time-<?php echo $data[$i]['id'] ?>"
+                                value="<?php echo $u_close_time; ?>">
 
                             <div class="booking-field">
                                 <label>Day</label>
@@ -133,7 +127,37 @@ foreach ($results as $row) {
             } ?>
         </tbody>
     </table>
+    <div>
+        <h2>Weekends</h2>
+        <?php
+        $i = 0;
+        while ($i < count($data)) {
+            $current_day = trim(strtolower($data[$i]['day']));
+            if ($current_day == "saturday") {
+        ?>
+                Saturday: <input 
+                            data-rid="<?php echo $data[$i]['id']; ?>" 
+                            type="checkbox" 
+                            id="saturday" 
+                            value=1
+                            <?php checked($data[$i]['is_closed'], 1); ?>
+                            >
+            <?php } ?>
+            <?php
+            if ($current_day == "sunday") {
+            ?>
+            Sunday: <input 
+                    data-rid="<?php echo $data[$i]['id']; ?>" 
+                    type="checkbox" 
+                    id="sunday"
+                    <?php checked($data[$i]['is_closed'], 1); ?>
+                    >
+        <?php
+            }
+            $i++;
+        } ?>
 
+    </div>
     <div class="business-actions"></div>
 
 </div>

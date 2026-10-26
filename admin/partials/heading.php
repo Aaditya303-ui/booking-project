@@ -1,14 +1,22 @@
 <!-- Display the content -->
 <?php
-// sql query array store
+
+// $posts_per_page = 2;
+
+// $current_page = isset($_GET['resource_page'])
+//     ? max(1, absint($_GET['resource_page']))
+//     : 1;
 
 $args = array(
     'post_type'      => 'resource',
     'post_status'    => 'publish',
-    'posts_per_page' => -1,
+    // 'posts_per_page' => $posts_per_page,
+    // 'paged'          => $current_page,
 );
 
-$posts = get_posts($args);
+$query = new WP_Query($args);
+
+$posts = $query->posts;
 
 $data = array();
 
@@ -28,6 +36,16 @@ foreach ($posts as $post) {
 <div class="resource-wrap">
     <h1>Display Resources</h1>
     <h2>I will display all resources here</h2>
+    <br>
+    <input type="text" id="search">
+    <select id="sortBy">
+        <option value="">Select sorting</option>
+        <option value="a-z">A-Z</option>
+        <option value="z-a">Z-A</option>
+        <option value="old">old to new</option>
+        <option value="new">new to old</option>
+    </select>
+    <br>
 
     <table class="resource-table">
         <thead>
@@ -87,8 +105,8 @@ foreach ($posts as $post) {
                             update
                         </button>
                     </td>
-                    <div id="resource-edit-modal-<?php echo $data[$i]['id'] ?>" 
-                    class="booking-modal-overlay" style="display: none;">
+                    <div id="resource-edit-modal-<?php echo $data[$i]['id'] ?>"
+                        class="booking-modal-overlay" style="display: none;">
                         <div class="booking-modal-content">
                             <h2 style="margin-top: 0;">Edit Resource</h2>
 
@@ -161,5 +179,18 @@ foreach ($posts as $post) {
             } ?>
         </tbody>
     </table>
-</div>
+    <?php
+    $total_pages = $query->max_num_pages;
+    ?>
+    <div class="resource-pagination">
 
+        <!-- <?php
+        // echo paginate_links(array(
+        //     'total'   => $query->max_num_pages,
+        //     'current' => $current_page,
+        //     'format'  => '?resource_page=%#%',
+        // ));
+        ?> -->
+
+    </div>
+</div>

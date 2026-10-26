@@ -110,7 +110,8 @@ class Booking_Public
 		$handle = $this->plugin_name;
 
 		wp_localize_script($handle, 'bookingApiSettings', array(
-			'nonce' => wp_create_nonce('wp_rest')
+			'nonce' => wp_create_nonce('wp_rest'),
+			'restUrl' => rest_url('myapi/v1/')
 		));
 
 		wp_enqueue_script(

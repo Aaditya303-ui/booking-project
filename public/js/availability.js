@@ -6,6 +6,9 @@
       let allBookings = [];
       let blackout = [];
       let allBuisnessHours = [];
+      let isclosed = [];
+
+      const today = new Date().toLocaleDateString("sv-SE");
 
       let oldid = document.getElementById("resource_id1");
       // let oldRecord = document.getElementById("time-occupied");
@@ -31,36 +34,86 @@
         },
       );
 
+      $.get(
+        "http://localhost/wordpress/wp-json/myapi/v1/buisness-hours/isclosed",
+        function (data) {
+          isclosed = data;
+        },
+      );
+
       if (oldid) {
         oldid.remove();
       }
 
-      // if( oldRecord ) {
-      //   oldRecord.remove();
-      // }
+      
 
       let resourceId = $(this).data("id");
 
-      // let format = date + " " + time + ":00";
-      // console.log(format);
 
       $(document).on("change", "#date", function () {
         let date = $("#date").val();
         let statusBox = $("#ajax-slot-status1");
         let submitbtn = $("#btn1");
 
+        if (date < today) {
+          statusBox
+          .text("Please select upcoming dates not dates which are passed").css({
+            display: "block",
+            background: "#ffebee",
+            color: "#c62828",
+            border: "1px solid #ef9a9a",
+          });
+          $("#time-occupied").text("");
+          submitbtn.css({
+            display: "none",
+          });
+          return;
+        } else {
+          statusBox.css({
+            display: "none",
+          });
+          submitbtn.css({
+            display: "block",
+          });
+        }
+
         let u_date = new Date(date);
         let weekday = u_date.toLocaleDateString("en-US", { weekday: "long" });
         let lweekday = weekday.toLowerCase();
+
+        let is_closed = false;
+
+        isclosed.forEach(function (data) {
+          if (data.day == lweekday) {
+            is_closed = true;
+          }
+        });
+
+        if (is_closed) {
+          statusBox.text("In Weekends we are closed durring that day").css({
+            display: "block",
+            background: "#ffebee",
+            color: "#c62828",
+            border: "1px solid #ef9a9a",
+          });
+          $("#time-occupied").text("");
+          submitbtn.css({
+            display: "none",
+          });
+          return;
+        } else {
+          statusBox.css({
+            display: "none",
+          });
+          submitbtn.css({
+            display: "block",
+          });
+        }
 
         allBuisnessHours.forEach(function (data) {
           if (data.day == lweekday) {
             let buisness_start = data.open_time;
             let buiseness_end = data.close_time;
-            console.log("Selected weekday:", lweekday);
-            console.log("Business day:", data.day);
-            console.log("Business start:", buisness_start);
-            console.log("Business end:", buiseness_end);
 
             $("#buisness-hours").text(
               `Select within ${buisness_start} - ${buiseness_end}`,
@@ -171,10 +224,10 @@
             let b_start_time = buisnesshours.open_time;
             let b_close_time = buisnesshours.close_time;
 
-            let [stime, speriod]   = b_start_time.split(/\s+/);
+            let [stime, speriod] = b_start_time.split(" ");
             let [shours, sminutes] = stime.split(":");
 
-            let [etime, eperiod]   = b_close_time.split(/\s+/);
+            let [etime, eperiod] = b_close_time.split(" ");
             let [ehours, eminutes] = etime.split(":");
 
             shours = parseInt(shours, 10);
@@ -196,10 +249,9 @@
               shours = 0;
             }
 
-            let new_start_time = `${String(shours).padStart(2,"0")}:${sminutes}`;
-            let new_end_time = `${String(ehours).padStart(2,"0")}:${eminutes}`;
+            let new_start_time = `${String(shours).padStart(2, "0")}:${sminutes}`;
+            let new_end_time = `${String(ehours).padStart(2, "0")}:${eminutes}`;
 
-            
             if (start_time >= new_start_time && end_time <= new_end_time) {
               NotinBuisnessHours = false;
             } else {

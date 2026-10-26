@@ -15,7 +15,7 @@
           let close_time = data[i]["close_time"];
           let is_close = data[i]["is_closed"];
 
-          let u_open_time  = $(`u_start_time-${id}`).val();
+          let u_open_time = $(`u_start_time-${id}`).val();
           let u_close_time = $(`u_close_time-${id}`).val();
 
           rowsHtml += `<tr>
@@ -94,7 +94,83 @@
       type: "PATCH",
       data: {
         open_time: start_time,
-        close_time: end_time
+        close_time: end_time,
+      },
+
+      beforeSend: function (xhr) {
+        if (
+          typeof bookingApiSettings !== "undefined" &&
+          bookingApiSettings.nonce
+        ) {
+          xhr.setRequestHeader("X-WP-Nonce", bookingApiSettings.nonce);
+        }
+      },
+
+      success: function () {
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: "The request status has been changed",
+        });
+
+        $(".booking-modal-overlay").fadeOut(400);
+        display_buisness_hours();
+      },
+
+      error: function (xhr) {
+        console.error("Update failed:", xhr.responseText);
+        alert("Failed to update booking status.");
+      },
+    });
+  });
+
+  $(document).on("change", "#saturday", function () {
+    let rid = $(this).data("rid");
+    let val = $("#saturday").is(":checked") ? 1 : 0;
+
+    $.ajax({
+      url: `http://localhost/wordpress/wp-json/myapi/v1/buisness-hours/${rid}`,
+      type: "PATCH",
+      data: {
+        is_closed: val
+      },
+
+      beforeSend: function (xhr) {
+        if (
+          typeof bookingApiSettings !== "undefined" &&
+          bookingApiSettings.nonce
+        ) {
+          xhr.setRequestHeader("X-WP-Nonce", bookingApiSettings.nonce);
+        }
+      },
+
+      success: function () {
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: "The request status has been changed",
+        });
+
+        $(".booking-modal-overlay").fadeOut(400);
+        display_buisness_hours();
+      },
+
+      error: function (xhr) {
+        console.error("Update failed:", xhr.responseText);
+        alert("Failed to update booking status.");
+      },
+    });
+  });
+
+  $(document).on("change", "#sunday", function () {
+    let rid = $(this).data("rid");
+    let val = $("#sunday").is(":checked") ? 1 : 0;
+
+    $.ajax({
+      url: `http://localhost/wordpress/wp-json/myapi/v1/buisness-hours/${rid}`,
+      type: "PATCH",
+      data: {
+        is_closed: val
       },
 
       beforeSend: function (xhr) {

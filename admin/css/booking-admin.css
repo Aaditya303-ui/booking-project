@@ -725,3 +725,44 @@ img {
     padding: 8px;
     box-sizing: border-box;
 }
+
+
+.resource-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 25px 0;
+}
+
+/* Each page number and navigation link */
+.resource-pagination .page-numbers {
+    display: inline-block;
+    padding: 8px 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #333;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+
+.resource-pagination .page-numbers:hover {
+    background: #2271b1;
+    color: #fff;
+    border-color: #2271b1;
+}
+
+
+.resource-pagination .page-numbers.current {
+    background: #2271b1;
+    color: #fff;
+    border-color: #2271b1;
+    font-weight: bold;
+}
+
+.resource-pagination .page-numbers.dots {
+    border: none;
+    background: transparent;
+}

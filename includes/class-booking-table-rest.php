@@ -9,6 +9,11 @@ class Booking_Table_Rest
     public function __construct()
     {
         add_action('rest_api_init', array($this, 'register_cpt_routes'));
+
+        add_action(
+            'booking_five_sec_test_event',
+            [$this, 'process_expired_bookings']
+        );
     }
 
     public function register_cpt_routes()
@@ -148,7 +153,7 @@ class Booking_Table_Rest
 
             $start_time = date("h:i a", strtotime($start));
             $end_time   = date("h:i a", strtotime($end));
-            
+
             $data[] = array(
                 'id'              => $row->id,
                 'resource_id'     => $row->resource_id,
@@ -313,6 +318,7 @@ class Booking_Table_Rest
 
         $table_name = $wpdb->prefix . 'bookings';
 
+
         $id = absint($request->get_param('id'));
         if (!$id) {
             return new WP_REST_Response(array('success' => false, 'message' => 'Invalid ID.'), 400);
@@ -372,6 +378,9 @@ class Booking_Table_Rest
                 $message .= "Booking Team";
             } elseif ($status == "cancelled") {
 
+                $data['created_at'] = current_time('mysql');
+                $format[] = '%s';
+
                 $message = "Hello " . $existing->requester_name . ",\n\n";
                 $message .= "We regret to inform you that your booking request has been cancelled.\n\n";
                 $message .= "We apologize for any inconvenience caused. Please try selecting another available time slot if you would still like to make a booking.\n\n";
@@ -407,6 +416,86 @@ class Booking_Table_Rest
             'booking_id' => $id,
         ), 200);
     }
+
+
+    public function process_expired_bookings()
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'bookings';
+
+        $query = $wpdb->prepare(
+            "SELECT
+            b.id,
+            p.post_title,
+            b.requester_name,
+            b.start_time,
+            b.end_time,
+            b.status,
+            b.date,
+            b.created_at,
+            b.requester_email
+        FROM {$table_name} AS b
+        LEFT JOIN {$wpdb->posts} AS p
+            ON b.resource_id = p.ID
+        WHERE b.status IN (%s, %s)
+        AND NOW() >= (b.created_at + INTERVAL 30 MINUTE)",
+            'pending',
+            'cancelled'
+        );
+
+        $results = $wpdb->get_results($query);
+
+
+        foreach ($results as $row) {
+
+            $id = absint($row->id);
+
+            $updated = $wpdb->query(
+                $wpdb->prepare(
+                    "UPDATE {$table_name}
+                 SET status = %s
+                 WHERE id = %d
+                 AND status = %s
+                 AND created_at <= DATE_SUB(NOW(), INTERVAL 30 MINUTE)",
+                    'expired',
+                    $id,
+                    $row->status
+                )
+            );
+
+
+            if ($updated !== 1) {
+                continue;
+            }
+
+            error_log(
+                "Cron ran: Booking ID {$id} expired successfully."
+            );
+
+            $to = sanitize_email($row->requester_email);
+
+
+            $subject = 'Booking Status Updated';
+
+            $message = "Hello " . $row->requester_name . ",\n\n";
+            $message .= "We would like to inform you that your booking request has expired.\n\n";
+            $message .= "Unfortunately, the booking was not confirmed within the required time. Please submit a new booking request for an available time slot if you would still like to proceed.\n\n";
+            $message .= "Thank you for your understanding.\n\n";
+            $message .= "Best regards,\n";
+            $message .= "Booking Team";
+
+
+            $mail_sent = wp_mail($to, $subject, $message);
+
+            if ($mail_sent) {
+                error_log(
+                    "email is been sended successfully {$id}."
+                );
+            }
+        }
+    }
+
 
     public function delete_booking_data(WP_REST_Request $request)
     {
@@ -467,14 +556,13 @@ class Booking_Table_Rest
         );
     }
 
-    public function get_requesters_data()
+    public function get_requesters_data(WP_REST_Request $request)
     {
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'bookings';
 
-        $query = $wpdb->prepare("
-                    SELECT 
+        $query = "SELECT 
                         b.id,
                         p.post_title,
                         b.requester_name,
@@ -483,15 +571,66 @@ class Booking_Table_Rest
                         b.status,
                         b.date,
                         b.created_at,
-                        b.requester_email
+                        b.requester_email,
+                        p.ID
                     FROM $table_name AS b
                     LEFT JOIN wp_posts AS p
                     ON b.resource_id = p.ID
-        ");
+                    WHERE 1 = 1";
+        $params = [];
 
-        $results = $wpdb->get_results($query);
 
-        $data = array();
+        $search = sanitize_text_field(
+            $request->get_param('search') ?? ''
+        );
+
+        if ($search !== '') {
+            $query .= " AND b.requester_name LIKE %s";
+            $params[] = '%' . $wpdb->esc_like($search) . '%';
+        }
+
+        $status = sanitize_text_field(
+            $request->get_param('status') ?? ''
+        );
+
+        if ($status !== "") {
+            $query    .= " AND b.status = %s";
+            $params[] = esc_html($status);
+        }
+
+        $resource_id = sanitize_text_field(
+            $request->get_param('resource_id')
+        );
+
+        if ($resource_id !== null && $resource_id !== "") {
+            $query .= " AND b.resource_id = %d";
+            $params[] = absint($resource_id);
+        }
+
+        $order_by = sanitize_text_field(
+            $request->get_param('sortBy')
+        );
+
+        $order = [
+            'a-z' => ' b.requester_name ASC',
+            'z-a' => ' b.requester_name DESC',
+            'new' => ' b.id DESC',
+            'old' => ' b.id ASC'
+        ];
+
+        if ($order_by !== "") {
+            $query .= " ORDER BY " . $order[$order_by];
+            $params[] = esc_html($order_by);
+        }
+
+
+        $sql = !empty($params)
+            ? $wpdb->prepare($query, ...$params)
+            : $query;
+
+        $results = $wpdb->get_results($sql);
+
+        $data = [];
 
         foreach ($results as $row) {
             $data[] = array(
@@ -503,9 +642,11 @@ class Booking_Table_Rest
                 'start_time'      => $row->start_time,
                 'end_time'        => $row->end_time,
                 'status'          => $row->status,
-                'created_at'      => $row->created_at
+                'created_at'      => $row->created_at,
+                'resource_id'     => $row->ID
             );
         }
+
         return new WP_REST_Response($data, 200);
     }
 
