@@ -51,16 +51,22 @@ class Booking_Blackout_Rest
 
         $table_name = $wpdb->prefix . 'blackout';
 
-        $query = "SELECT * FROM {$table_name} as b WHERE 1=1";
-        $params = [];
+        $query  = "SELECT * FROM {$table_name} as b WHERE 1=1";
+        $cquery = "SELECT COUNT(*) as counts FROM {$table_name} as b WHERE 1=1";
+
+        $params  = [];
+        $cparams = [];
 
         $search = sanitize_text_field(
             $request->get_param('search') ?? ''
         );
 
         if ($search !== '') {
-            $query   .= " AND b.reason LIKE %s";
-            $params[] = '%' . $wpdb->esc_like($search) . '%';
+            $query  .= " AND b.reason LIKE %s";
+            $cquery .= " AND b.reason LIKE %s";
+
+            $params[]  = '%' . $wpdb->esc_like($search) . '%';
+            $cparams[] = '%' . $wpdb->esc_like($search) . '%';
         }
 
         $date = sanitize_text_field(
@@ -69,7 +75,10 @@ class Booking_Blackout_Rest
 
         if ($date !== '') {
             $query   .= " AND b.blackout_date LIKE %s";
+            $cquery   .= " AND b.blackout_date LIKE %s";
+
             $params[] = '%' . $wpdb->esc_like($date) . '%';
+            $cparams[] = '%' . $wpdb->esc_like($date) . '%';
         }
 
         $sort_by = sanitize_text_field(
@@ -85,7 +94,6 @@ class Booking_Blackout_Rest
 
         if ($sort_by !== "") {
             $query .= " ORDER BY " . $order[$sort_by];
-            $params[] = esc_html($sort_by);
         }
 
         $month = strtolower(
@@ -109,16 +117,39 @@ class Booking_Blackout_Rest
 
         if (isset($months[$month])) {
             $query .= " AND MONTH(b.blackout_date) = %d";
-            $params[] = $months[$month];
+            $cquery .= " AND MONTH(b.blackout_date) = %d";
+
+            $params[]  = $months[$month];
+            $cparams[] = $months[$month];
         }
+
+        $page = absint($request->get_param('page') ?? 1);
+
+        if ($page < 1) {
+            $page = 1;
+        }
+
+        $limit = 4;
+        $offset = ($page - 1) * $limit;
+
+        $query .= " LIMIT %d, %d";
+
+        $params[] = $offset;
+        $params[] = $limit;
 
         $sql = !empty($params)
             ? $wpdb->prepare($query, ...$params)
             : $query;
 
-        $results = $wpdb->get_results($sql);
+        $csql = !empty($cparams)
+            ? $wpdb->prepare($cquery, ...$cparams)
+            : $cquery;
+
+        $results  = $wpdb->get_results($sql);
+        $results1 = $wpdb->get_results($csql);
 
         $data = array();
+        $data1 = $results1[0]->counts;
 
         foreach ($results as $row) {
             $arr         = explode(" ", $row->blackout_date);
@@ -137,7 +168,11 @@ class Booking_Blackout_Rest
                 'month'             => $month
             );
         }
-        return new WP_REST_Response($data, 200);
+        $response_data = [
+            'data'   => $data,
+            'counts' => $data1
+        ];
+        return new WP_REST_Response($response_data, 200);
     }
 
     public function add_blackout_date(WP_REST_Request $request)

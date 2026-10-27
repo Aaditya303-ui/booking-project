@@ -577,16 +577,28 @@ class Booking_Table_Rest
                     LEFT JOIN wp_posts AS p
                     ON b.resource_id = p.ID
                     WHERE 1 = 1";
-        $params = [];
 
+        $countsql    = "SELECT
+                            COUNT(*) AS counts
+                            FROM
+                        wp_bookings AS b
+                        LEFT JOIN wp_posts AS p
+                        ON b.resource_id = p.ID
+                        WHERE 1 = 1";
+
+        $countparams = [];
+        $params = [];
 
         $search = sanitize_text_field(
             $request->get_param('search') ?? ''
         );
 
         if ($search !== '') {
-            $query .= " AND b.requester_name LIKE %s";
-            $params[] = '%' . $wpdb->esc_like($search) . '%';
+            $query    .= " AND b.requester_name LIKE %s";
+            $countsql .= " AND b.requester_name LIKE %s";
+
+            $params[]      = '%' . $wpdb->esc_like($search) . '%';
+            $countparams[] = '%' . $wpdb->esc_like($search) . '%';
         }
 
         $status = sanitize_text_field(
@@ -595,7 +607,10 @@ class Booking_Table_Rest
 
         if ($status !== "") {
             $query    .= " AND b.status = %s";
-            $params[] = esc_html($status);
+            $countsql .= " AND b.status = %s";
+
+            $params[]      = esc_html($status);
+            $countparams[] = esc_html($status);
         }
 
         $resource_id = sanitize_text_field(
@@ -603,8 +618,11 @@ class Booking_Table_Rest
         );
 
         if ($resource_id !== null && $resource_id !== "") {
-            $query .= " AND b.resource_id = %d";
-            $params[] = absint($resource_id);
+            $query    .= " AND b.resource_id = %d";
+            $countsql .= " AND b.resource_id = %d";
+
+            $params[]       = absint($resource_id);
+            $countparams[]  = absint($resource_id);
         }
 
         $order_by = sanitize_text_field(
@@ -618,19 +636,44 @@ class Booking_Table_Rest
             'old' => ' b.id ASC'
         ];
 
-        if ($order_by !== "") {
+        if (isset($order[$order_by])) {
             $query .= " ORDER BY " . $order[$order_by];
-            $params[] = esc_html($order_by);
         }
+
+        $page = absint($request->get_param('page') ?? 1);
+
+        if ($page < 1) {
+            $page = 1;
+        }
+
+        $limit = 4;
+        $offset = ($page - 1) * $limit;
+
+        $query .= " LIMIT %d, %d";
+
+        $params[] = $offset;
+        $params[] = $limit;
 
 
         $sql = !empty($params)
             ? $wpdb->prepare($query, ...$params)
             : $query;
 
-        $results = $wpdb->get_results($sql);
+        $csql = !empty($countparams)
+            ? $wpdb->prepare($countsql, ...$countparams)
+            : $countsql;
 
-        $data = [];
+        $results  = $wpdb->get_results($sql);
+        $results1 = $wpdb->get_results($csql);
+
+        $data  = [];
+        $cdata = [];
+
+        foreach ($results1 as $row) {
+            $cdata[] = array(
+                'counts' => $row->counts
+            );
+        }
 
         foreach ($results as $row) {
             $data[] = array(
@@ -647,7 +690,14 @@ class Booking_Table_Rest
             );
         }
 
-        return new WP_REST_Response($data, 200);
+        $response_data = [
+            'data'   => $data,
+            'counts' => $cdata[0]['counts'],
+            'page'   => $page,
+            'limit'  => $limit
+        ];
+
+        return new WP_REST_Response($response_data, 200);
     }
 
     // Validation 

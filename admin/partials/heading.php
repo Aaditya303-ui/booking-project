@@ -1,17 +1,16 @@
-<!-- Display the content -->
+
 <?php
+$limit = 4;
 
-// $posts_per_page = 2;
-
-// $current_page = isset($_GET['resource_page'])
-//     ? max(1, absint($_GET['resource_page']))
-//     : 1;
+if (isset($_GET['page']) && absint($_GET['page']) !== 0) {
+    $pn = absint($_GET['page']);
+} else {
+    $pn = 1;
+};
 
 $args = array(
     'post_type'      => 'resource',
     'post_status'    => 'publish',
-    // 'posts_per_page' => $posts_per_page,
-    // 'paged'          => $current_page,
 );
 
 $query = new WP_Query($args);
@@ -179,18 +178,41 @@ foreach ($posts as $post) {
             } ?>
         </tbody>
     </table>
-    <?php
-    $total_pages = $query->max_num_pages;
-    ?>
-    <div class="resource-pagination">
+    
+     <div id="paginate1">
+        <div id="pagination-link">
+            <?php
+            global $wpdb;
 
-        <!-- <?php
-        // echo paginate_links(array(
-        //     'total'   => $query->max_num_pages,
-        //     'current' => $current_page,
-        //     'format'  => '?resource_page=%#%',
-        // ));
-        ?> -->
+            $countsql = "
+                    SELECT
+                        COUNT(*) as counts
+                        FROM wp_posts AS p
+                        WHERE p.post_type = 'resource' 
+                        AND p.post_status = 'publish';
+                    ";
+            $query1 = $wpdb->prepare($countsql);
+            $results  = $wpdb->get_results($query1);
 
+            $total_records = $results[0]->counts;
+
+            $total_pages = ceil($total_records / $limit);
+
+            $pagLink = "";
+            for ($i = 1; $i <= $total_pages; $i++) {
+                if ($i == $pn) {
+                    $pagLink .= "<li class='active' >
+            <a id='page' data-lid=" . $i . ">" . $i . "</a>
+            </li>";
+                } else {
+                    $pagLink .= "<li>
+                            <a id='page' data-lid=" . $i . ">"
+                        . $i .
+                        "</a>";
+                }
+            };
+            echo $pagLink;
+            ?>
+        </div>
     </div>
 </div>

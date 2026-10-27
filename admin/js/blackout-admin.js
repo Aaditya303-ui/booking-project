@@ -1,27 +1,91 @@
 (function ($) {
   "use strict";
 
-  function loadblackoutData() {
-    $.get(`${bookingApiSettings.restUrl}blackout`, function (data) {
+  let blackouts = [];
+
+  function loadblackoutData(page = 1) {
+    let search = ($("#search_reason").val() ?? "").trim();
+    let blackout_date = ($("#select_date").val() ?? "").trim();
+    let sort_by = ($("#sort_by").val() ?? "").trim();
+    let month = ($("#month").val() ?? "").trim();
+
+    let newUri = `${bookingApiSettings.restUrl}blackout`;
+
+    let params = new URLSearchParams();
+
+    if (search !== "") {
+      params.append("search", search);
+    }
+
+    if(page !== "") {
+      params.append("page",page);
+    }
+
+    if (blackout_date !== "") {
+      params.append("blackout_date", blackout_date);
+    }
+
+    if (sort_by !== "") {
+      params.append("sort_by", sort_by);
+    }
+
+    if (month !== "") {
+      params.append("month", month);
+    }
+
+    newUri += "?" + params.toString();
+
+    console.log(newUri);
+    
+    $.get(`${newUri}`, function (data) {
+      blackouts = data["data"];
+
       let i = 0;
       let rowsHtml = "";
-      while (i < data.length) {
-        let blackout_id = data[i]["blackout_id"];
-        let blackout_date = data[i]["date"];
-        let reason = data[i]["reason"];
+      while (i < blackouts.length) {
+        let blackout_id = blackouts[i]["blackout_id"];
+        let blackout_date = blackouts[i]["date"];
+        let reason = blackouts[i]["reason"];
 
         rowsHtml += `<tr>
-                              <td>${blackout_id}</td>
-                              <td>${blackout_date}</td>
-                              <td>${reason}</td>
-                              <td>
-                                <button id="delete-btn" data-id=${blackout_id}>
-                                    Delete
-                                </button>
-                              </td>
-                          </tr>`;
+                      <td>${blackout_id}</td>
+                      <td>${blackout_date}</td>
+                      <td>${reason}</td>
+                      <td>
+                        <button id="delete-btn" data-id=${blackout_id}>
+                          Delete
+                        </button>
+                      </td>
+                  </tr>`;
         i++;
       }
+
+      let counts = data["counts"];
+      let limit = 4;
+
+      let total_pages = Math.ceil(counts / limit);
+
+      let pagLink = "";
+
+      for (let i = 1; i <= total_pages; i++) {
+        if (i == page) {
+          pagLink += `<li class='active' >
+            <a
+            class='page-link'  
+            id='page1' 
+            data-lid=${i}>${i}</a>
+            </li>`;
+        } else {
+          pagLink += `<li>
+            <a 
+            class='page-link' 
+            id='page1' data-lid=${i}>${i}</a>
+            </li>`;
+        }
+      }
+
+      $("#pagination-link").html(pagLink);
+
       $("#mycontent2").html(rowsHtml);
     });
   }
@@ -128,61 +192,21 @@
   });
 
   $(document).on(
-    "change input",
-    "#search_reason, #select_date, #sort_by, #month",
+    "change",
+    "#select_date, #sort_by, #month",
     function () {
-      let search = ($("#search_reason").val() ?? "").trim();
-      let blackout_date = ($("#select_date").val() ?? "").trim();
-      let sort_by = ($("#sort_by").val() ?? "").trim();
-      let month = ($("#month").val() ?? "").trim();
-
-      let newUri = `${bookingApiSettings.restUrl}blackout`;
-
-      console.log(blackout_date);
-      let params = new URLSearchParams();
-
-      if (search !== "") {
-        params.append("search", search);
-      }
-
-      if (blackout_date !== "") {
-        params.append("blackout_date", blackout_date);
-      }
-
-      if (sort_by !== "") {
-        params.append("sort_by", sort_by);
-      }
-
-      if (month !== "") {
-        params.append("month", month);
-      }
-
-      newUri += "?" + params.toString();
-
-      console.log(newUri);
-
-      $.get(`${newUri}`, function (data) {
-        let i = 0;
-        let rowsHtml = "";
-        while (i < data.length) {
-          let blackout_id = data[i]["blackout_id"];
-          let blackout_date = data[i]["date"];
-          let reason = data[i]["reason"];
-
-          rowsHtml += `<tr>
-                              <td>${blackout_id}</td>
-                              <td>${blackout_date}</td>
-                              <td>${reason}</td>
-                              <td>
-                                <button id="delete-btn" data-id=${blackout_id}>
-                                    Delete
-                                </button>
-                              </td>
-                          </tr>`;
-          i++;
-        }
-        $("#mycontent2").html(rowsHtml);
-      });
+      loadblackoutData(1);
     },
   );
+
+  $(document).on("click","#searchbtn, #search_reason", function(){
+    loadblackoutData(1);
+  });
+
+  $(document).on("click", "#page1", function () {
+    let page = Number($(this).data("lid")) ?? 1;
+    console.log(page);
+
+    loadblackoutData(page);
+  });
 })(jQuery);

@@ -129,33 +129,27 @@ foreach ($results as $row) {
     </table>
     <div>
         <h2>Weekends</h2>
-        <?php
-        $i = 0;
-        while ($i < count($data)) {
-            $current_day = trim(strtolower($data[$i]['day']));
-            if ($current_day == "saturday") {
-        ?>
-                Saturday: <input 
-                            data-rid="<?php echo $data[$i]['id']; ?>" 
-                            type="checkbox" 
-                            id="saturday" 
-                            value=1
-                            <?php checked($data[$i]['is_closed'], 1); ?>
-                            >
-            <?php } ?>
-            <?php
-            if ($current_day == "sunday") {
+
+        <?php 
+        $j = 0;
+
+        while($j < count($data)) {
+            $id        = absint($data[$j]['id']);
+            $day       = esc_html($data[$j]['day']);
+            $is_closed = absint($data[$j]['is_closed']);
             ?>
-            Sunday: <input 
-                    data-rid="<?php echo $data[$i]['id']; ?>" 
-                    type="checkbox" 
-                    id="sunday"
-                    <?php checked($data[$i]['is_closed'], 1); ?>
-                    >
-        <?php
-            }
-            $i++;
-        } ?>
+
+            <?php echo "$day: "?> 
+            <input 
+            data-rid="<?php echo $id; ?>"
+            type="checkbox"
+            id="dayss"
+            <?php checked($is_closed, 1); ?>
+            >
+            <?php
+            $j++;
+        }
+        ?>
 
     </div>
     <div class="business-actions"></div>

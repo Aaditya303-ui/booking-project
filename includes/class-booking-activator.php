@@ -34,7 +34,6 @@ class Booking_Activator
 	public static function activate()
 	{
 		\Aj\Table\Booking_Db::create_table();
-
-		d
+		
 	}
 }

@@ -4,43 +4,67 @@
   let booking = [];
 
   function demo() {
-    $.get(
-      `${bookingApiSettings.restUrl}booking/requests`,
-      function (data) {
-        booking = data;
-      },
-    );
+    $.get(`${bookingApiSettings.restUrl}booking/requests`, function (data) {
+      booking = data["data"];
+    });
   }
 
-  demo();
+  // demo();
 
-  function loadRequestData() {
-    $.get(
-      `${bookingApiSettings.restUrl}booking/requests`,
-      function (data) {
-        booking = data;
+  function loadRequestData(page = 1) {
+    let status = ($("#statusFilter").val() ?? "").trim();
+    let resource = ($("#resources").val() ?? "").trim();
+    let sortBy = ($("#sortBy").val() ?? "").trim();
+    let search = ($("#searchbooking").val() ?? "").trim();
 
-        let i = 0;
-        let rowsHtml = "";
+    let newUri = `${bookingApiSettings.restUrl}booking/requests`;
 
-        while (i < booking.length) {
-          let id = booking[i].id;
-          let post_title = booking[i].post_title;
-          let requester_name = booking[i].requester_name;
-          let start_time = booking[i].start_time;
-          let end_time = booking[i].end_time;
-          let status = booking[i].status;
+    let params = new URLSearchParams();
 
-          let statusDropdown = "";
+    params.set("page", page);
 
-          if (status === "expired") {
-            statusDropdown = `
+    if (status !== "") {
+      params.set("status", status);
+    }
+
+    if (resource !== "") {
+      params.set("resource_id", resource);
+    }
+
+    if (sortBy !== "") {
+      params.set("sortBy", sortBy);
+    }
+
+    if (search !== "") {
+      params.set("search", search);
+    }
+
+    newUri += "?" + params.toString();
+
+    $.get(`${newUri}`, function (data) {
+      booking = data["data"];
+
+      let i = 0;
+      let rowsHtml = "";
+
+      while (i < booking.length) {
+        let id = booking[i].id;
+        let post_title = booking[i].post_title;
+        let requester_name = booking[i].requester_name;
+        let start_time = booking[i].start_time;
+        let end_time = booking[i].end_time;
+        let status = booking[i].status;
+
+        let statusDropdown = "";
+
+        if (status === "expired") {
+          statusDropdown = `
             <select id="bookingStatus" data-id="${id}">
                 <option selected value="expired">Expired</option>
             </select>
         `;
-          } else {
-            statusDropdown = `
+        } else {
+          statusDropdown = `
             <select id="bookingStatus" data-id="${id}">
                 <option value="pending" ${status === "pending" ? "selected" : ""}>
                     Pending
@@ -53,9 +77,9 @@
                 </option>
             </select>
         `;
-          }
+        }
 
-          rowsHtml += `<tr>
+        rowsHtml += `<tr>
                         <td>${id}</td>
                         <td>${post_title}</td>
                         <td>${requester_name}</td>
@@ -68,12 +92,37 @@
                             </button>
                         </td>
                     </tr>`;
-          i++;
-        }
+        i++;
+      }
 
-        $("#mycontent1").html(rowsHtml);
-      },
-    );
+      $("#mycontent1").html(rowsHtml);
+
+      let counts = data["counts"];
+      let limit = 4;
+
+      let total_pages = Math.ceil(counts / limit);
+
+      let pagLink = "";
+
+      for (let i = 1; i <= total_pages; i++) {
+        if (i == page) {
+          pagLink += `<li class='active' >
+            <a
+            class='page-link'  
+            id='page' 
+            data-lid=${i}>${i}</a>
+            </li>`;
+        } else {
+          pagLink += `<li>
+            <a 
+            class='page-link' 
+            id='page' data-lid=${i}>${i}</a>
+            </li>`;
+        }
+      }
+
+      $("#pagination-link").html(pagLink);
+    });
   }
 
   $(document).on("click", ".view-btn", function () {
@@ -195,7 +244,7 @@
 
     if (validateUpdateBooking(requester_name, email, date, from, to)) {
       console.log(data1);
-        $.ajax({
+      $.ajax({
         url: `${bookingApiSettings.restUrl}booking/${id}`,
         type: "PATCH",
         data: {
@@ -245,93 +294,23 @@
   });
 
   $(document).on(
-    "change input",
-    "#searchbooking ,#statusFilter, #sortBy, #resources",
+    "change input click",
+    "#statusFilter, #sortBy, #resources",
     function () {
-      let status = ($("#statusFilter").val() ?? "").trim();
-      let resource = ($("#resources").val() ?? "").trim();
-      let sortBy = ($("#sortBy").val() ?? "").trim();
-      let search = ($("#searchbooking").val() ?? "").trim();
-
-      let newUri = `${bookingApiSettings.restUrl}booking/requests`;
-      let params = new URLSearchParams();
-
-      if (status !== "") {
-        params.append("status", status);
-      }
-
-      if (resource !== "") {
-        params.append("resource_id", resource);
-      }
-
-      if (sortBy !== "") {
-        params.append("sortBy", sortBy);
-      }
-
-      if (search !== "") {
-        params.append("search", search);
-      }
-
-      newUri += "?" + params.toString();
-
-      console.log(newUri);
-
-      $.get(`${newUri}`, function (data) {
-        booking = data;
-
-        let i = 0;
-        let rowsHtml = "";
-
-        while (i < booking.length) {
-          let id = booking[i].id;
-          let post_title = booking[i].post_title;
-          let requester_name = booking[i].requester_name;
-          let start_time = booking[i].start_time;
-          let end_time = booking[i].end_time;
-          let status = booking[i].status;
-
-          let statusDropdown = "";
-
-          if (status === "expired") {
-            statusDropdown = `
-            <select id="bookingStatus" data-id="${id}">
-                <option selected value="expired">Expired</option>
-            </select>
-        `;
-          } else {
-            statusDropdown = `
-            <select id="bookingStatus" data-id="${id}">
-                <option value="pending" ${status === "pending" ? "selected" : ""}>
-                    Pending
-                </option>
-                <option value="confirmed" ${status === "confirmed" ? "selected" : ""}>
-                    Confirmed
-                </option>
-                <option value="cancelled" ${status === "cancelled" ? "selected" : ""}>
-                    Cancelled
-                </option>
-            </select>
-        `;
-          }
-
-          rowsHtml += `<tr>
-                        <td>${id}</td>
-                        <td>${post_title}</td>
-                        <td>${requester_name}</td>
-                        <td>${start_time}</td>
-                        <td>${end_time}</td>
-                        <td>${statusDropdown}</td>
-                        <td>
-                            <button class="view-btn" data-id="${id}">
-                                View
-                            </button>
-                        </td>
-                    </tr>`;
-          i++;
-        }
-
-        $("#mycontent1").html(rowsHtml);
-      });
+      loadRequestData(1);
     },
   );
+
+  $(document).on("click","#searchbooking",function(){
+    loadRequestData(1);
+  })
+
+  $(document).on("click", "#page", function () {
+    let page = Number($(this).data("lid")) ?? 1;
+
+    $(".pagination-link li").removeClass("active");
+    $(this).parent("li").addClass("active");
+
+    loadRequestData(page);
+  });
 })(jQuery);

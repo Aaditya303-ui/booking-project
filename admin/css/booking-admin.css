@@ -766,3 +766,38 @@ img {
     border: none;
     background: transparent;
 }
+
+
+
+#pagination-link {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+#pagination-link li {
+    list-style: none;
+}
+
+#pagination-link a {
+    display: inline-block;
+    padding: 8px 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    color: #333;
+    background: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#pagination-link a:hover {
+    background: #e8f0fe;
+    border-color: #4285f4;
+}
+
+#pagination-link li.active a {
+    background: #4285f4;
+    color: white;
+    border-color: #4285f4;
+}

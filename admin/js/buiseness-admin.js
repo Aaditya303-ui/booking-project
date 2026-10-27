@@ -124,9 +124,9 @@
     });
   });
 
-  $(document).on("change", "#saturday", function () {
+  $(document).on("change", "#dayss", function () {
     let rid = $(this).data("rid");
-    let val = $("#saturday").is(":checked") ? 1 : 0;
+    let val = $(this).is(":checked") ? 1 : 0;
 
     $.ajax({
       url: `http://localhost/wordpress/wp-json/myapi/v1/buisness-hours/${rid}`,
@@ -162,43 +162,43 @@
     });
   });
 
-  $(document).on("change", "#sunday", function () {
-    let rid = $(this).data("rid");
-    let val = $("#sunday").is(":checked") ? 1 : 0;
+  // $(document).on("change", "#sunday", function () {
+  //   let rid = $(this).data("rid");
+  //   let val = $("#sunday").is(":checked") ? 1 : 0;
 
-    $.ajax({
-      url: `http://localhost/wordpress/wp-json/myapi/v1/buisness-hours/${rid}`,
-      type: "PATCH",
-      data: {
-        is_closed: val
-      },
+  //   $.ajax({
+  //     url: `http://localhost/wordpress/wp-json/myapi/v1/buisness-hours/${rid}`,
+  //     type: "PATCH",
+  //     data: {
+  //       is_closed: val
+  //     },
 
-      beforeSend: function (xhr) {
-        if (
-          typeof bookingApiSettings !== "undefined" &&
-          bookingApiSettings.nonce
-        ) {
-          xhr.setRequestHeader("X-WP-Nonce", bookingApiSettings.nonce);
-        }
-      },
+  //     beforeSend: function (xhr) {
+  //       if (
+  //         typeof bookingApiSettings !== "undefined" &&
+  //         bookingApiSettings.nonce
+  //       ) {
+  //         xhr.setRequestHeader("X-WP-Nonce", bookingApiSettings.nonce);
+  //       }
+  //     },
 
-      success: function () {
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: "The request status has been changed",
-        });
+  //     success: function () {
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Success!",
+  //         text: "The request status has been changed",
+  //       });
 
-        $(".booking-modal-overlay").fadeOut(400);
-        display_buisness_hours();
-      },
+  //       $(".booking-modal-overlay").fadeOut(400);
+  //       display_buisness_hours();
+  //     },
 
-      error: function (xhr) {
-        console.error("Update failed:", xhr.responseText);
-        alert("Failed to update booking status.");
-      },
-    });
-  });
+  //     error: function (xhr) {
+  //       console.error("Update failed:", xhr.responseText);
+  //       alert("Failed to update booking status.");
+  //     },
+  //   });
+  // });
 
   $(document).on("click", ".booking-modal-close", function () {
     $(this).closest(".booking-modal-overlay").fadeOut(300);

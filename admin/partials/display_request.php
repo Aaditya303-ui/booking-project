@@ -5,6 +5,18 @@ global $wpdb;
 $table_name  = $wpdb->prefix . 'bookings';
 $table_name1 = $wpdb->prefix . 'posts';
 
+$limit = 4;
+
+if (isset($_GET['page']) && absint($_GET['page']) !== 0) {
+    $pn = absint($_GET['page']);
+} else {
+    $pn = 1;
+};
+
+
+
+$start_from = absint(($pn - 1) * $limit);
+
 $query = $wpdb->prepare("
                     SELECT 
                         b.id,
@@ -19,6 +31,7 @@ $query = $wpdb->prepare("
                     FROM $table_name AS b
                     LEFT JOIN wp_posts AS p
                     ON b.resource_id = p.ID
+                    LIMIT $start_from, $limit
         ");
 
 $results  = $wpdb->get_results($query);
@@ -159,9 +172,9 @@ foreach ($results1 as $row) {
                         ?>
                     </td>
                     <td>
-                        <button class="view-btn" 
-                                data-id=<?php echo $data[$i]['id']; ?>
-                                data-rid=<?php echo $data[$i]['resource_id']; ?>>
+                        <button class="view-btn"
+                            data-id=<?php echo $data[$i]['id']; ?>
+                            data-rid=<?php echo $data[$i]['resource_id']; ?>>
                             view
                         </button>
                     </td>
@@ -217,4 +230,31 @@ foreach ($results1 as $row) {
             } ?>
         </tbody>
     </table>
-</div>
+    <div id="paginate1">
+        <div id="pagination-link">
+            <?php
+            $countsql = "SELECT COUNT(*) as counts FROM $table_name";
+            $query1 = $wpdb->prepare($countsql);
+            $results  = $wpdb->get_results($query1);
+
+            $total_records = $results[0]->counts;
+
+            $total_pages = ceil($total_records / $limit);
+
+            $pagLink = "";
+            for ($i = 1; $i <= $total_pages; $i++) {
+                if ($i == $pn) {
+                    $pagLink .= "<li class='active' >
+            <a id='page' data-lid=" . $i . ">" . $i . "</a>
+            </li>";
+                } else {
+                    $pagLink .= "<li>
+                            <a id='page' data-lid=" . $i . ">"
+                        . $i .
+                        "</a>";
+                }
+            };
+            echo $pagLink;
+            ?>
+        </div>
+    </div>

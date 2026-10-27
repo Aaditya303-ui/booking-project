@@ -3,12 +3,26 @@
 global $wpdb;
 
 $table_name = $wpdb->prefix . 'blackout';
+$limit = 4;
 
-$query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE 1=1");
+if (isset($_GET['page']) && absint($_GET['page']) !== 0) {
+    $pn = absint($_GET['page']);
+} else {
+    $pn = 1;
+};
 
-$results = $wpdb->get_results($query);
+$start_from = absint(($pn - 1) * $limit);
+
+$query  = $wpdb->prepare("SELECT * FROM {$table_name} WHERE 1=1
+LIMIT $start_from, $limit");
+$query1 = $wpdb->prepare("SELECT COUNT(*) as counts FROM {$table_name} WHERE 1=1
+                            LIMIT $start_from, $limit");
+
+$results  = $wpdb->get_results($query);
+$results1 = $wpdb->get_results($query1);
 
 $data = array();
+$count = $results1[0]->counts;
 
 foreach ($results as $row) {
     $arr  = explode(" ", $row->blackout_date);
@@ -33,6 +47,7 @@ foreach ($results as $row) {
         </div>
         <div>
             <input type="text" id="search_reason">
+            <button id="searchbtn">search</button>
             <input type="date" id="select_date">
             <select id="sort_by">
                 <option value="">select the sorting</option>
@@ -98,6 +113,33 @@ foreach ($results as $row) {
                 } ?>
             </tbody>
         </table>
+        <div id="paginate1">
+            <div id="pagination-link">
+                <?php
+                $countsql = "SELECT COUNT(*) as counts FROM $table_name";
+                $query1 = $wpdb->prepare($countsql);
+                $results  = $wpdb->get_results($query1);
+
+                $total_records = $results[0]->counts;
+                $total_pages = ceil($total_records / $limit);
+
+                $pagLink = "";
+                for ($i = 1; $i <= $total_pages; $i++) {
+                    if ($i == $pn) {
+                        $pagLink .= "<li class='active' >
+            <a id='page1' data-lid=" . $i . ">" . $i . "</a>
+            </li>";
+                    } else {
+                        $pagLink .= "<li>
+                            <a id='page1' data-lid=" . $i . ">"
+                            . $i .
+                            "</a>";
+                    }
+                };
+                echo $pagLink;
+                ?>
+            </div>
+        </div>
     </div>
 
     <p id="blackout-empty-message" class="blackout-empty" style="display:none;">
